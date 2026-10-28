@@ -1717,6 +1717,7 @@ waybar
 wcurl
 webkit2gtk4.1
 webrtc-audio-processing
+wf-recorder
 wget2
 wget2-libs
 wget2-wget

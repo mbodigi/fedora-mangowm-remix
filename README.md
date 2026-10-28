@@ -62,6 +62,18 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 
 ## Option 1: install from the ISO
 
+### Download it
+
+A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-shell-setup/releases):
+`Shell-Setup-44-Remix-netinst.iso` (1.2 GB). Check it before writing it to a USB stick:
+
+```bash
+sha256sum -c Shell-Setup-44-Remix-netinst.iso.sha256
+```
+
+It's Fedora's official net-install image with this repo's kickstart and configs added, so the
+installer screens still say Fedora. Or build it yourself:
+
 ### Build the ISO
 
 Requirements: Fedora with `podman` and `curl`, about 5 GB of free disk space, and an internet connection.
@@ -84,7 +96,9 @@ What `build-iso.sh` does:
    (BIOS, UEFI and the UEFI boot image) at the kickstart. This step needs root (it uses a loop
    device), so a password prompt appears.
 
-Result: `out/Fedora-Shell-44-netinst.iso` (about 1.2 GB).
+Result: `out/Fedora-Shell-44-netinst.iso` (about 1.2 GB). With `PUBLIC=1 ./build-iso.sh` it leaves
+out the local wallpapers (`private/`) and writes `out/Shell-Setup-44-Remix-netinst.iso` instead;
+that's the one published on the Releases page.
 
 ### Write it to a USB stick
 

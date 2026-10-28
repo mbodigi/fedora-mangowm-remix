@@ -2,7 +2,8 @@
 # Build the net-install ISO: Fedora's official netinst ISO + our kickstart + the setup bundle.
 # Builds from setup/ (via ./pack.sh). Uses a rootless podman container for the tools (lorax/mkksiso,
 # pykickstart), so nothing is installed on this machine.
-#   ./build-iso.sh   ->  out/Fedora-Shell-44-netinst.iso
+#   ./build-iso.sh            ->  out/Fedora-Shell-44-netinst.iso         (with your wallpapers, for yourself)
+#   PUBLIC=1 ./build-iso.sh   ->  out/Shell-Setup-44-Remix-netinst.iso    (repo contents only, safe to publish)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -11,6 +12,7 @@ BASE=https://dl.fedoraproject.org/pub/fedora/linux/releases/$REL/Everything/x86_
 ISO=Fedora-Everything-netinst-x86_64-44-1.7.iso
 SUM=Fedora-Everything-44-1.7-x86_64-CHECKSUM
 OUT_ISO=Fedora-Shell-44-netinst.iso
+[ "${PUBLIC:-0}" = 1 ] && OUT_ISO=Shell-Setup-44-Remix-netinst.iso
 
 ./pack.sh
 mkdir -p download out
