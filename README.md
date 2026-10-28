@@ -4,6 +4,10 @@ A complete, reproducible Fedora 44 desktop: **MangoWM** (a Wayland compositor) w
 **hand-written Quickshell shell**, a Waybar dock, a custom login screen, systemd-boot,
 and a uniform monochrome theme with JetBrains Mono everywhere.
 
+![The desktop: bar, dock, app launcher, dashboard, control center, shortcut cheatsheet and fastfetch](docs/demo.gif)
+
+<sub>Shown with Fedora 44's default wallpaper (CC BY-SA 4.0, Fedora Design Team). The theme colors are generated from whatever wallpaper you pick.</sub>
+
 This repo can rebuild that desktop two ways:
 
 1. **A net-install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
@@ -212,4 +216,5 @@ and the whole theme is regenerated from it.
   [matugen](https://github.com/InioX/matugen), [Waybar](https://github.com/Alexays/Waybar),
   [greetd](https://kl.wtf/projects/greetd)
 - [Material Symbols](https://fonts.google.com/icons) font (Apache License 2.0), bundled for the shell's icons
+- Demo GIF wallpaper: Fedora 44 default background by the Fedora Design Team, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 - Built on [Fedora](https://fedoraproject.org) 44
