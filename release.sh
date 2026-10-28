@@ -3,9 +3,7 @@
 #   out/release/fedora-mangowm-remix-VERSION-x86_64.iso            (net-install: one file, under 2 GB)
 #     or .iso.part1..N                                               (offline, OFFLINE=1: split for GitHub)
 #   out/release/fedora-mangowm-remix-VERSION-x86_64.iso.sha256     (of the joined ISO)
-#   out/release/fedora-mangowm-remix-VERSION-x86_64.torrent        (folder fedora-mangowm-remix-VERSION,
-#                                                                    with the release as its web seed)
-# The release tag must be fedora-mangowm-remix-VERSION: the torrent's web seed and folder use it.
+# The release tag is fedora-mangowm-remix-VERSION.
 set -euo pipefail
 cd "$(dirname "$0")"
 VERSION=$(cat VERSION)
@@ -30,8 +28,5 @@ else
     files=(out/release/$NAME.iso.part*)
 fi
 
-src/make-torrent.py "$TAG" "${files[@]}" "out/release/$NAME.iso.sha256" > out/release/torrent-info.txt
-mv "out/release/$TAG.torrent" "out/release/$NAME.torrent"
 
 ls -l out/release
-echo "magnet: $(sed -n 2p out/release/torrent-info.txt)"

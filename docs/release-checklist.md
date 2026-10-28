@@ -38,7 +38,7 @@ Run through this for every release, on the **final** build (not an earlier one).
 
 ## 5. Release
 
-- [ ] `./release.sh` (parts, checksum, torrent; it checks the parts join back to the ISO)
+- [ ] `./release.sh` (the ISO, or parts for an offline ISO, and its checksum)
 - [ ] Commit and push; release notes in `out/release/notes.md`
-- [ ] `gh release create fedora-mangowm-remix-VERSION …` with the parts, `.sha256` and `.torrent`
-- [ ] Check as a visitor: files download, sizes match, the torrent's web seed serves a piece that matches
+- [ ] `gh release create fedora-mangowm-remix-VERSION …` with the ISO (or parts) and `.sha256`
+- [ ] Check as a visitor: files download and sizes match

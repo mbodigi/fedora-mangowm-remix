@@ -73,14 +73,6 @@ writing it to a USB stick:
 sha256sum -c fedora-mangowm-remix-VERSION-x86_64.iso.sha256
 ```
 
-Or with **BitTorrent**: open the release's `.torrent` (or the magnet link below) in any torrent
-client (qBittorrent, Transmission…). GitHub is built in as a web seed, so it works even when nobody
-else is seeding.
-
-```
-magnet:?xt=urn:btih:9d0b5bba70f480c985ba05e9432c091ee52dde99&dn=fedora-mangowm-remix-44.2&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-mangowm-remix%2Freleases%2Fdownload%2F
-```
-
 It's Fedora's official net-install image (for its installer) with this repo's kickstart and
 configs added, so the installer screens still say Fedora. **The packages (about 2.5 GB) download
 during the install**, so it needs internet. For an install without internet, build the offline
@@ -119,7 +111,7 @@ file of that name, e.g. `44.2`). With `OFFLINE=1 ./build-iso.sh` you get
 `…-x86_64-offline-personal.iso` instead (about 3.8 GB, every package on it, no internet needed to install). With `PUBLIC=1 ./build-iso.sh` it leaves out the local wallpapers
 (`private/`) and writes `out/fedora-mangowm-remix-VERSION-x86_64.iso` instead; that's the one
 published on the Releases page. `./release.sh` then prepares it for GitHub (one file; an offline ISO, which is
-over GitHub's 2 GB limit, in parts) and makes its checksum and torrent in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
+over GitHub's 2 GB limit, in parts) and makes its checksum in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
 
 ### Write it to a USB stick
 
@@ -224,11 +216,10 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
 ├── pack.sh               setup/ -> build/ (kickstart + bundle)
 ├── VERSION               release version (Fedora release . build), used in every file name
-├── release.sh            split the public ISO for GitHub + checksum + torrent
+├── release.sh            prepare the public ISO for GitHub (+ checksum)
 ├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle + package repo -> out/*.iso
 ├── install.sh            apply the setup to an existing Fedora 44
 ├── test-vm.sh            try the ISO in a VM
-├── src/make-torrent.py   .torrent of a release's files, with GitHub as a web seed
 ├── src/
 │   ├── shell-setup.ks.in kickstart template (@PACKAGES@ is filled in by pack.sh)
 │   ├── repos-online.ks   the repos a net-install downloads from (default)
