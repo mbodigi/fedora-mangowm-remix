@@ -1,0 +1,9 @@
+# generated or downloaded, rebuilt by the scripts
+build/
+download/
+out/
+test/
+*.iso
+
+# wallpapers: other people's art (wallhaven), kept only on the machine they came from
+private/

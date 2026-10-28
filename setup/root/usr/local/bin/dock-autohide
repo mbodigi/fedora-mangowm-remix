@@ -1,0 +1,79 @@
+#!/usr/bin/python3 -I
+"""Intelli-hide for the Waybar dock on mango.
+
+Shows the dock when no window overlaps its area, or while the pointer is at the
+left edge / over the dock. Hides it otherwise, and always over fullscreen windows.
+Starts Waybar itself (hidden) and toggles it with SIGUSR1.
+"""
+import json
+import os
+import signal
+import subprocess
+import time
+
+CFG = os.path.expanduser("~/.config/waybar/dock")
+DOCK_ZONE = 64      # px from the left edge that the dock occupies (width + margin)
+EDGE = 2            # px from the left edge that reveals the dock
+INTERVAL = 0.2      # seconds between checks
+
+
+def mmsg(*args):
+    out = subprocess.run(["mmsg", "get", *args], capture_output=True, text=True).stdout
+    return json.loads(out) if out else {}
+
+
+def start_waybar():
+    return subprocess.Popen(["waybar", "-c", f"{CFG}/config.jsonc", "-s", f"{CFG}/style.css"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def screen_left(name):
+    for m in mmsg("all-monitors").get("monitors", []):
+        if m["name"] == name:
+            return m["x"]
+    return 0
+
+
+def window_in_zone(clients, monitor, left):
+    for c in clients:
+        if c["monitor"] != monitor or not c["is_visible"] or c["is_minimized"]:
+            continue
+        if c["is_fullscreen"]:
+            return "fullscreen"
+        if c["x"] < left + DOCK_ZONE:
+            return "overlap"
+    return None
+
+
+def main():
+    bar = start_waybar()
+    shown = False   # config has start_hidden
+    lefts = {}
+    while True:
+        if bar.poll() is not None:  # waybar exited: restart it hidden
+            time.sleep(1)
+            bar, shown = start_waybar(), False
+        try:
+            cur = mmsg("cursorpos")
+            mon = cur.get("monitor", "")
+            left = lefts.setdefault(mon, screen_left(mon))
+            blocker = window_in_zone(mmsg("all-clients").get("clients", []), mon, left)
+            x = cur.get("x", 0)
+            if blocker == "fullscreen":
+                want = False
+            elif x <= left + EDGE:
+                want = True
+            elif shown and x <= left + DOCK_ZONE:
+                want = True   # keep it up while the pointer is on the dock
+            else:
+                want = blocker is None
+            if want != shown:
+                bar.send_signal(signal.SIGUSR1)
+                shown = want
+        except (ValueError, KeyError, OSError):
+            pass
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    main()

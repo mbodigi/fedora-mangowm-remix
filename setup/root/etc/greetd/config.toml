@@ -1,0 +1,6 @@
+[terminal]
+vt = 1
+
+[default_session]
+command = "mango -c /usr/local/share/shell-greeter/mango.conf -s /usr/local/share/shell-greeter/start"
+user = "greeter"

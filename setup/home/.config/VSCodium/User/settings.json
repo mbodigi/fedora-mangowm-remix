@@ -1,0 +1,6 @@
+{
+    "security.workspace.trust.untrustedFiles": "open",
+    "editor.fontSize": 18,
+    "workbench.colorTheme": "Visual Studio Dark",
+    "window.autoDetectColorScheme": true
+}

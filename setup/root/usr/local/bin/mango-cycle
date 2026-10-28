@@ -1,0 +1,33 @@
+#!/usr/bin/python3 -I
+"""Focus the next/previous window across all tags (Alt+Tab style).
+
+Usage: mango-cycle [next|prev]
+"""
+import json
+import subprocess
+import sys
+
+
+def mmsg(*args):
+    return subprocess.run(["mmsg", *args], capture_output=True, text=True).stdout
+
+
+def main():
+    step = -1 if len(sys.argv) > 1 and sys.argv[1] == "prev" else 1
+    clients = [
+        c for c in json.loads(mmsg("get", "all-clients"))["clients"]
+        if not c["is_minimized"] and not c["is_scratchpad"] and c["tags"]
+    ]
+    if len(clients) < 2:
+        return
+    # Stable order: by monitor, lowest tag, then window id
+    clients.sort(key=lambda c: (c["monitor"], min(c["tags"]), c["id"]))
+    current = next((i for i, c in enumerate(clients) if c["is_focused"]), -1)
+    target = clients[(current + step) % len(clients)]
+    if not target["is_visible"]:
+        mmsg("dispatch", f"view,{min(target['tags'])}")
+    mmsg("dispatch", f"focusid,{target['id']}")
+
+
+if __name__ == "__main__":
+    main()

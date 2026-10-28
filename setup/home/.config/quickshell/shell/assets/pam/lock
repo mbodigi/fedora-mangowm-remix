@@ -1,0 +1,8 @@
+#%PAM-1.0
+# Lock screen: check the user's own password (pam_unix uses the setuid unix_chkpwd helper).
+auth      required     pam_env.so
+auth      sufficient   pam_unix.so       try_first_pass nullok
+auth      required     pam_deny.so
+account   required     pam_unix.so
+password  required     pam_deny.so
+session   required     pam_permit.so

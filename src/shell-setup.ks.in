@@ -1,0 +1,89 @@
+# Fedora 44 + our MangoWM/Quickshell desktop, installed over the network.
+# Language, keyboard, disk, time zone and the user are left to the installer screens (next, next, finish).
+# collect.sh fills in @PACKAGES@ and writes shell-setup.ks next to this file.
+
+graphical
+
+# Network: DHCP on the first cable that has a link; Wi-Fi can be picked in "Network & Host Name".
+# The connection used here is copied to the installed system.
+network --device=link --bootproto=dhcp --activate --onboot=yes
+
+url --metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-44&arch=x86_64
+repo --name=updates --metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f44&arch=x86_64
+repo --name=fedora-cisco-openh264 --metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-cisco-openh264-44&arch=x86_64
+repo --name=rpmfusion-free --metalink=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-44&arch=x86_64
+repo --name=rpmfusion-free-updates --metalink=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-updates-released-44&arch=x86_64
+repo --name=rpmfusion-nonfree --metalink=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-44&arch=x86_64
+repo --name=rpmfusion-nonfree-updates --metalink=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-updates-released-44&arch=x86_64
+repo --name=terra --metalink=https://tetsudou.fyralabs.com/metalink?repo=terra44&arch=x86_64
+repo --name=quickshell --baseurl=https://download.copr.fedorainfracloud.org/results/errornointernet/quickshell/fedora-44-x86_64/
+repo --name=brave-browser --baseurl=https://brave-browser-rpm-release.s3.brave.com/x86_64
+repo --name=librewolf --baseurl=https://repo.librewolf.net
+
+# bootloader: picked per machine by %pre below
+%include /tmp/bootloader.ks
+selinux --enforcing
+firewall --enabled
+firstboot --disable
+services --enabled=NetworkManager,greetd,tuned
+
+# systemd-boot (like the original machine) on UEFI without Secure Boot. It isn't signed, so with
+# Secure Boot on, and on old BIOS machines, use GRUB (signed shim on UEFI) instead.
+%pre
+sb=$(od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c 2>/dev/null | awk '{print $NF}')
+if [ -d /sys/firmware/efi ] && [ "$sb" != 1 ]; then
+    echo "bootloader --sdboot" > /tmp/bootloader.ks
+else
+    echo "bootloader" > /tmp/bootloader.ks
+fi
+%end
+
+%packages
+@PACKAGES@
+%end
+
+# The bundle (configs, greeter, policies, wallpapers) is on the ISO; copy it into the new system.
+%post --nochroot --erroronfail
+set -e
+for d in /run/install/repo /run/install/sources/mount-*-cdrom /run/install/isodir; do
+    [ -f "$d/shell-bundle.tar.gz" ] && { cp "$d/shell-bundle.tar.gz" /mnt/sysroot/tmp/; exit 0; }
+done
+mkdir -p /tmp/shellmedia
+for dev in /dev/disk/by-label/*; do
+    mount -o ro "$dev" /tmp/shellmedia 2>/dev/null || continue
+    if [ -f /tmp/shellmedia/shell-bundle.tar.gz ]; then
+        cp /tmp/shellmedia/shell-bundle.tar.gz /mnt/sysroot/tmp/
+        umount /tmp/shellmedia
+        exit 0
+    fi
+    umount /tmp/shellmedia
+done
+echo "shell-bundle.tar.gz not found on the install media" >&2
+exit 1
+%end
+
+%post --erroronfail --log=/root/shell-setup-post.log
+set -ex
+mkdir -p /tmp/shell-bundle
+tar -xzf /tmp/shell-bundle.tar.gz -C /tmp/shell-bundle
+B=/tmp/shell-bundle
+
+# system files: greeter, greetd, browser policies, LibreWolf defaults, battery rule, tuned, repos, helper scripts
+cp -a "$B/root/." /
+mkdir -p /usr/share/shell-setup
+cp -a "$B/home" "$B/greeter-cache" /usr/share/shell-setup/
+
+# the login screen's theme cache keeps the label it has on the original machine
+semanage fcontext -a -t cache_home_t '/var/cache/shell-greeter(/.*)?' || true
+restorecon -RF /etc /usr/local /usr/share/shell-setup /usr/share/librewolf || true
+
+systemctl enable greetd
+systemctl set-default graphical.target
+
+# give every user created in the installer the desktop
+getent passwd | awk -F: '$3 >= 1000 && $3 < 60000 {print $1}' | while read -r u; do
+    /usr/local/bin/shell-user-setup "$u"
+done
+
+rm -rf /tmp/shell-bundle /tmp/shell-bundle.tar.gz
+%end

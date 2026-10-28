@@ -1,0 +1,21 @@
+#!/bin/sh
+# First login of a user (started by mango's exec_once): settings that live in dconf, not in files.
+marker="$HOME/.local/state/shell/.firstlogin-done"
+[ -e "$marker" ] && exit 0
+
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
+gsettings set org.gnome.desktop.interface icon-theme 'Fluent-grey'
+gsettings set org.gnome.desktop.interface font-name 'JetBrains Mono 10'
+gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono 11'
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:close'
+
+c=io.github.celluloid-player.Celluloid
+gsettings set $c always-autohide-cursor true
+gsettings set $c always-use-floating-controls true
+gsettings set $c draggable-video-area-enable false
+gsettings set $c mpv-config-enable true
+gsettings set $c mpv-config-file "file://$HOME/.config/mpv/mpv.conf"
+
+xdg-user-dirs-update 2>/dev/null
+touch "$marker"

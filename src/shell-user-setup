@@ -1,0 +1,28 @@
+#!/bin/sh
+# Give a user this desktop setup: copies /usr/share/shell-setup/home into $HOME (never overwrites),
+# fills in @HOME@, and owns the login screen's theme cache.
+# Runs as root from the installer for the user created there (shell-user-setup <user>),
+# or by any later user on themselves (shell-user-setup).
+set -e
+SRC=/usr/share/shell-setup/home
+
+if [ "$(id -u)" = 0 ] && [ -n "$1" ]; then
+    user=$1
+    home=$(getent passwd "$user" | cut -d: -f6)
+    [ -d "$home" ] || { echo "no home for $user" >&2; exit 1; }
+    cp -rn --no-preserve=ownership "$SRC/." "$home/"
+    grep -rlI '@HOME@' "$home/.config" "$home/.local" 2>/dev/null | xargs -r sed -i "s#@HOME@#$home#g"
+    chown -R "$user:$(id -gn "$user")" "$home"
+    restorecon -RF "$home" 2>/dev/null || true
+    # matugen writes the login screen's colors here, the greeter reads them
+    install -d -o "$user" -g greeter -m 2750 /var/cache/shell-greeter
+    for f in colors.json wallpaper; do
+        [ -e /usr/share/shell-setup/greeter-cache/$f ] &&
+            install -o "$user" -g greeter -m 640 /usr/share/shell-setup/greeter-cache/$f /var/cache/shell-greeter/$f
+    done
+    exit 0
+fi
+
+cp -rn "$SRC/." "$HOME/"
+grep -rlI '@HOME@' "$HOME/.config" "$HOME/.local" 2>/dev/null | xargs -r sed -i "s#@HOME@#$HOME#g"
+echo "Done. Log out and back in to load the desktop."

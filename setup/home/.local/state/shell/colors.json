@@ -1,0 +1,16 @@
+{
+    "colors": {
+        "dark": {
+            "surface": "#131313",
+            "surface_container": "#1f1f1f",
+            "surface_container_high": "#2a2a2a",
+            "on_surface": "#e2e2e2",
+            "on_surface_variant": "#c6c6c6",
+            "outline": "#919191",
+            "primary": "#ffffff",
+            "on_primary": "#1b1b1b",
+            "primary_container": "#d4d4d4",
+            "error": "#ffb4ab"
+        }
+    }
+}

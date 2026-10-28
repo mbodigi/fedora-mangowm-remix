@@ -1,0 +1,34 @@
+[Added Associations]
+application/json=com.visualstudio.CodeOSS.desktop;
+application/xhtml+xml=librewolf.desktop;
+text/html=librewolf.desktop;
+x-scheme-handler/http=librewolf.desktop;
+x-scheme-handler/https=librewolf.desktop;
+inode/directory=thunar.desktop;
+x-scheme-handler/file=thunar.desktop;
+x-scheme-handler/sftp=thunar.desktop;
+application/x-zerosize=com.visualstudio.CodeOSS.desktop;
+text/markdown=com.visualstudio.CodeOSS.desktop;
+text/plain=com.visualstudio.CodeOSS.desktop;
+text/x-c++src=com.visualstudio.CodeOSS.desktop;
+text/x-csrc=com.visualstudio.CodeOSS.desktop;
+text/x-python=com.visualstudio.CodeOSS.desktop;
+text/x-shellscript=com.visualstudio.CodeOSS.desktop;
+
+[Default Applications]
+application/xhtml+xml=librewolf.desktop
+text/html=librewolf.desktop
+x-scheme-handler/http=librewolf.desktop
+x-scheme-handler/https=librewolf.desktop
+inode/directory=thunar.desktop
+x-scheme-handler/file=thunar.desktop
+x-scheme-handler/sftp=thunar.desktop
+application/json=com.visualstudio.CodeOSS.desktop
+application/x-zerosize=com.visualstudio.CodeOSS.desktop
+text/markdown=com.visualstudio.CodeOSS.desktop
+text/plain=com.visualstudio.CodeOSS.desktop
+text/x-c++src=com.visualstudio.CodeOSS.desktop
+text/x-csrc=com.visualstudio.CodeOSS.desktop
+text/x-python=com.visualstudio.CodeOSS.desktop
+text/x-shellscript=com.visualstudio.CodeOSS.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop

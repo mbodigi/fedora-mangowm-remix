@@ -1,0 +1,4 @@
+#!/bin/sh
+# Started by mango for greetd: run the login screen, then close mango so greetd can start the session.
+qs -p /usr/local/share/shell-greeter/shell.qml
+mmsg dispatch quit
