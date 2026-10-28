@@ -10,7 +10,7 @@ and a uniform monochrome theme with JetBrains Mono everywhere.
 
 This repo can rebuild that desktop two ways:
 
-1. **A net-install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
+1. **An offline install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
    installer, and you get this exact desktop on first login.
 2. **A script for an existing Fedora 44** (`install.sh`): turns a stock install into this desktop.
 
@@ -25,7 +25,7 @@ SSH keys or files from the home folder. Only configuration.
 |---|---|
 | **Window manager** | [MangoWM](https://github.com/mangowm/mango) 0.18 (from the terra repo), tiling + floating, scenefx effects |
 | **Shell** | Our own [Quickshell](https://quickshell.org) shell (`setup/home/.config/quickshell/shell`): bar, app launcher, clipboard history, notifications + center, control center, OSD, lock screen, dashboard with wallpapers, power menu, cheatsheet, task manager, settings panel, polkit password dialog, battery warnings, Wi-Fi login (captive portal) notification |
-| **Dock** | Waybar on the left edge, with intelligent auto-hide (`dock-autohide`) |
+| **Dock** | Part of the shell (`dock/`): left edge, intelligent auto-hide, one icon per app with a running indicator. Click focuses / minimizes / restores, middle click closes, **right click → Pin to dock / Unpin, New window, Close** |
 | **Login screen** | A Quickshell greeter run by greetd (`setup/root/usr/local/share/shell-greeter`) |
 | **Theme** | Colors generated from the wallpaper by matugen (monochrome scheme), applied to the shell, GTK 3/4, Qt 5/6 and Mango; accents are fixed soft grays (#505050 / #8a8a8a) |
 | **Fonts** | JetBrains Mono for the UI, monospace and subtitles (fontconfig maps sans-serif to it too) |
@@ -57,6 +57,7 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 | `Alt + Tab` | Cycle windows |
 | `Print` / `Ctrl + Print` / `Alt + Print` | Screenshot region / full screen / window |
 | `Ctrl + Alt + Delete` | Task manager |
+| `Super + Shift + P` | Pin / unpin the focused app to the dock |
 
 ---
 
@@ -64,19 +65,23 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 
 ### Download it
 
-A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-shell-setup/releases):
-`Shell-Setup-44-Remix-netinst.iso` (1.2 GB). Check it before writing it to a USB stick:
+A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-shell-setup/releases).
+It's 3.8 GB, more than GitHub's 2 GB limit per file, so it comes in three parts. Download all
+the parts and the `.sha256` file into one folder, then join and check them:
 
 ```bash
-sha256sum -c Shell-Setup-44-Remix-netinst.iso.sha256
+cat Shell-Setup-44-Remix-offline.iso.part-* > Shell-Setup-44-Remix-offline.iso
+sha256sum -c Shell-Setup-44-Remix-offline.iso.sha256
 ```
 
-It's Fedora's official net-install image with this repo's kickstart and configs added, so the
-installer screens still say Fedora. Or build it yourself:
+It's Fedora's official net-install image (for its installer) with this repo's kickstart, configs
+and **every package** added, so installing needs no internet. The installer screens still say
+Fedora. Or build it yourself:
 
 ### Build the ISO
 
-Requirements: Fedora with `podman` and `curl`, about 5 GB of free disk space, and an internet connection.
+Requirements: Fedora with `podman` and `curl`, about 12 GB of free disk space, and an internet connection
+(about 3.8 GB of downloads the first time; later builds only fetch updated packages).
 
 ```bash
 git clone https://github.com/mbodigi/fedora-shell-setup.git
@@ -91,21 +96,26 @@ What `build-iso.sh` does:
 2. Downloads Fedora's **official** net-install ISO (`Fedora-Everything-netinst-x86_64-44-1.7.iso`, 1.2 GB)
    and checks it against Fedora's **GPG-signed checksum** file. It stops if the check fails.
 3. Builds a small container image with Fedora's ISO tools (lorax, pykickstart, xorriso), once.
-4. Validates the kickstart with `ksvalidator`.
-5. Runs `mkksiso` to add the kickstart and bundle to the ISO and point all boot menus
-   (BIOS, UEFI and the UEFI boot image) at the kickstart. This step needs root (it uses a loop
-   device), so a password prompt appears.
+4. Runs `src/make-repo.sh` in a clean Fedora container with the same repos as the installed system:
+   downloads every package in `setup/packages.txt` (plus the GRUB/shim bootloader packages for
+   Secure Boot and BIOS machines) with all dependencies into `download/rpms/`, and makes
+   `build/shellrepo/` a package repo with Fedora's package groups.
+5. Validates the kickstart with `ksvalidator`.
+6. Runs `mkksiso` to add the kickstart, the bundle and the package repo to the ISO, and points all
+   boot menus (BIOS, UEFI and the UEFI boot image) at them (`inst.ks=…` and
+   `inst.repo=hd:LABEL=…:/shellrepo`). This step needs root (it uses a loop device), so a password
+   prompt appears.
 
-Result: `out/Fedora-Shell-44-netinst.iso` (about 1.2 GB). With `PUBLIC=1 ./build-iso.sh` it leaves
-out the local wallpapers (`private/`) and writes `out/Shell-Setup-44-Remix-netinst.iso` instead;
+Result: `out/Fedora-Shell-44-offline.iso` (about 3.8 GB). With `PUBLIC=1 ./build-iso.sh` it leaves
+out the local wallpapers (`private/`) and writes `out/Shell-Setup-44-Remix-offline.iso` instead;
 that's the one published on the Releases page.
 
 ### Write it to a USB stick
 
-Use **Fedora Media Writer**, or `dd` (this erases the stick; double-check the device name with `lsblk`):
+Use an 8 GB or bigger stick, with **Fedora Media Writer** or `dd` (this erases the stick; double-check the device name with `lsblk`):
 
 ```bash
-sudo dd if=out/Fedora-Shell-44-netinst.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=out/Fedora-Shell-44-offline.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
 ### Install
@@ -114,29 +124,31 @@ sudo dd if=out/Fedora-Shell-44-netinst.iso of=/dev/sdX bs=4M status=progress ofl
 2. Pick **Install Fedora 44** in the boot menu.
 3. In the installer fill in only these screens:
    - **Installation Destination**: pick the disk (Automatic partitioning is fine)
-   - **Network & Host Name**: only needed for Wi-Fi; a cable connects by itself
+   - **Network & Host Name**: optional; set up Wi-Fi here if you want it on the new system
    - **Time & Date**: your time zone
    - **User Creation**: your username and password; tick **Make this user administrator**
 4. **Do not change Software Selection.** It must say *Custom software selected*. Choosing an
    environment there replaces this setup's package list.
-5. Click **Begin Installation**. The packages (about 2.5 to 3 GB) are downloaded during the install,
-   so it needs a working internet connection (Wi-Fi networks with a login page won't work here).
+5. Click **Begin Installation**. Everything is installed from the USB stick; no internet needed.
+   In a test VM the whole install took about 17 minutes.
 6. Reboot: systemd-boot, then the login screen, then the desktop.
 
 ### What the installer does
 
-- **Repos**: Fedora + updates, RPM Fusion free/nonfree, terra (MangoWM, Ghostty, VSCodium),
-  the official [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell),
+- **Packages**: all from the repo on the ISO (`/shellrepo`). The installed system gets the normal
+  online repos for updates: Fedora + updates, RPM Fusion free/nonfree, terra (MangoWM, Ghostty,
+  VSCodium), the official [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell),
   Brave, LibreWolf and Cisco OpenH264.
-- **Network**: DHCP on the first connected cable; Wi-Fi can be chosen in the installer. The
-  connection used during install is copied to the new system. NetworkManager's connectivity
+- **Network**: not needed to install. DHCP on a connected cable; Wi-Fi can be set up in the
+  installer, and that connection is copied to the new system. NetworkManager's connectivity
   check is installed, so the shell notices Wi-Fi login pages.
 - **Bootloader**, picked per machine in the kickstart `%pre`:
   - UEFI with Secure Boot **off**: **systemd-boot**
   - UEFI with Secure Boot **on**: GRUB through Fedora's signed shim (systemd-boot from Fedora isn't signed)
   - Old BIOS: GRUB
-- **After the packages** (`%post`): copies the system files from `setup/root`, enables the greetd
-  login screen, and gives every user created in the installer the configs from `setup/home`
+- **After the packages** (`%post`): copies the system files from `setup/root` (as root, without
+  touching existing folders like `/` or `/etc`), creates the `greeter` account the login screen
+  runs as, enables the greetd login screen, and gives every user created in the installer the configs from `setup/home`
   (via `shell-user-setup`, which fills in the user's real home folder).
 - **First login**: `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons,
   fonts, Celluloid options), once.
@@ -183,7 +195,7 @@ finds anything that looks like a key or password.
 | Command | What it does |
 |---|---|
 | `./test-vm.sh try` | Boots the ISO in a UEFI VM up to the installer; nothing is installed |
-| `./test-vm.sh install` | Fully automatic test install on a 30 GB virtual disk (user `test`, password `test`) |
+| `./test-vm.sh install` | Fully automatic test install on a 30 GB virtual disk with **no network** (user `test`, password `test`) |
 | `./test-vm.sh boot` | Starts the installed VM |
 | `./test-vm.sh screenshot` | Saves a screenshot of the VM |
 | `./test-vm.sh delete` | Removes the VM and its disk |
@@ -198,11 +210,14 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 .
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
 ├── pack.sh               setup/ -> build/ (kickstart + bundle)
-├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle -> out/*.iso
+├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle + package repo -> out/*.iso
 ├── install.sh            apply the setup to an existing Fedora 44
 ├── test-vm.sh            try the ISO in a VM
 ├── src/
 │   ├── shell-setup.ks.in kickstart template (@PACKAGES@ is filled in by pack.sh)
+│   ├── make-repo.sh      downloads every package into the on-ISO repo (runs in a container)
+│   ├── offline-extra-packages.txt  bootloaders the installer may need (GRUB, shim)
+│   ├── system/           sysusers.d / tmpfiles.d for the login screen's account
 │   ├── shell-user-setup  copies the configs to a user, fills in @HOME@
 │   └── shell-firstlogin  dconf settings at first login
 └── setup/                the snapshot (generated by collect.sh, committed)

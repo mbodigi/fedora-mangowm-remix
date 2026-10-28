@@ -24,9 +24,17 @@ cp -a "$B/root/etc/yum.repos.d/." /etc/yum.repos.d/
 dnf -y swap ffmpeg-free ffmpeg --allowerasing || true
 dnf -y install --allowerasing $(cat "$list")
 
-cp -a "$B/root/." /
+# owned by root, and existing directories (/, /etc, /usr...) keep their owner and mode:
+# a plain cp -a would hand them to whoever built the bundle
+(cd "$B/root" && tar -cf - --owner=0 --group=0 --numeric-owner .) | tar -xf - -C / --no-overwrite-dir
 mkdir -p /usr/share/shell-setup
-cp -a "$B/home" "$B/greeter-cache" /usr/share/shell-setup/
+cp -r "$B/home" "$B/greeter-cache" /usr/share/shell-setup/
+chown -R root:root /usr/share/shell-setup
+# the login screen's account and its home (must exist before users get the greeter cache)
+systemd-sysusers shell-greeter.conf
+systemd-tmpfiles --create shell-greeter.conf
+restorecon -RF /var/lib/greeter || true
+
 semanage fcontext -a -t cache_home_t '/var/cache/shell-greeter(/.*)?' || true
 restorecon -RF /etc /usr/local /usr/share/shell-setup /usr/share/librewolf || true
 

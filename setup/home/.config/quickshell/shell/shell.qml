@@ -11,6 +11,7 @@ import "wallpaper"
 import "dashboard"
 import "tools"
 import "security"
+import "dock"
 import "services"
 
 ShellRoot {
@@ -37,4 +38,5 @@ ShellRoot {
     TaskManager {}
     SettingsPanel {}
     PolkitDialog {}
+    Dock {}
 }

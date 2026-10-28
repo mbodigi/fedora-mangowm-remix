@@ -1,0 +1,3 @@
+# The account greetd runs our login screen as (/etc/greetd/config.toml: user = "greeter").
+# Fedora's greetd package only creates "greetd", so we create this one ourselves.
+u greeter - "System Greeter" /var/lib/greeter /bin/bash

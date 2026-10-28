@@ -1,24 +1,16 @@
-# Fedora 44 + our MangoWM/Quickshell desktop, installed over the network.
+# Fedora 44 + our MangoWM/Quickshell desktop, installed offline from the packages on the ISO.
 # Language, keyboard, disk, time zone and the user are left to the installer screens (next, next, finish).
-# collect.sh fills in @PACKAGES@ and writes shell-setup.ks next to this file.
+# pack.sh fills in @PACKAGES@ and writes build/shell-setup.ks.
 
 graphical
 
-# Network: DHCP on the first cable that has a link; Wi-Fi can be picked in "Network & Host Name".
+# Network (not needed to install): DHCP on the first cable with a link; Wi-Fi can be set in "Network & Host Name".
 # The connection used here is copied to the installed system.
 network --device=link --bootproto=dhcp --activate --onboot=yes
 
-url --metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-44&arch=x86_64
-repo --name=updates --metalink=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f44&arch=x86_64
-repo --name=fedora-cisco-openh264 --metalink=https://mirrors.fedoraproject.org/metalink?repo=fedora-cisco-openh264-44&arch=x86_64
-repo --name=rpmfusion-free --metalink=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-44&arch=x86_64
-repo --name=rpmfusion-free-updates --metalink=https://mirrors.rpmfusion.org/metalink?repo=free-fedora-updates-released-44&arch=x86_64
-repo --name=rpmfusion-nonfree --metalink=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-44&arch=x86_64
-repo --name=rpmfusion-nonfree-updates --metalink=https://mirrors.rpmfusion.org/metalink?repo=nonfree-fedora-updates-released-44&arch=x86_64
-repo --name=terra --metalink=https://tetsudou.fyralabs.com/metalink?repo=terra44&arch=x86_64
-repo --name=quickshell --baseurl=https://download.copr.fedorainfracloud.org/results/errornointernet/quickshell/fedora-44-x86_64/
-repo --name=brave-browser --baseurl=https://brave-browser-rpm-release.s3.brave.com/x86_64
-repo --name=librewolf --baseurl=https://repo.librewolf.net
+# Offline: every package comes from /shellrepo on the ISO (the boot menu passes
+# inst.repo=hd:LABEL=...:/shellrepo). The installed system gets the normal online repo files
+# for later updates.
 
 # bootloader: picked per machine by %pre below
 %include /tmp/bootloader.ks
@@ -69,9 +61,17 @@ tar -xzf /tmp/shell-bundle.tar.gz -C /tmp/shell-bundle
 B=/tmp/shell-bundle
 
 # system files: greeter, greetd, browser policies, LibreWolf defaults, battery rule, tuned, repos, helper scripts
-cp -a "$B/root/." /
+# owned by root, and existing directories (/, /etc, /usr...) keep their owner and mode:
+# a plain cp -a would hand them to whoever built the bundle
+(cd "$B/root" && tar -cf - --owner=0 --group=0 --numeric-owner .) | tar -xf - -C / --no-overwrite-dir
 mkdir -p /usr/share/shell-setup
-cp -a "$B/home" "$B/greeter-cache" /usr/share/shell-setup/
+cp -r "$B/home" "$B/greeter-cache" /usr/share/shell-setup/
+chown -R root:root /usr/share/shell-setup
+
+# the login screen's account and its home (must exist before users get the greeter cache)
+systemd-sysusers shell-greeter.conf
+systemd-tmpfiles --create shell-greeter.conf
+restorecon -RF /var/lib/greeter || true
 
 # the login screen's theme cache keeps the label it has on the original machine
 semanage fcontext -a -t cache_home_t '/var/cache/shell-greeter(/.*)?' || true

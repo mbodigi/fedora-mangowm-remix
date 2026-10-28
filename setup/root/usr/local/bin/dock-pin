@@ -1,0 +1,249 @@
+#!/usr/bin/python3 -I
+"""Pinned apps for the Waybar dock on mango.
+
+Pins live in ~/.config/waybar/dock/pins.json. Each pin is an icon in front of the taskbar:
+click opens the app, brings its window forward if it's already running, or minimizes it if it's
+the focused window (like the taskbar); right click unpins.
+A pinned app's running window isn't shown a second time in the taskbar.
+
+  dock-pin toggle        pin / unpin the app of the focused window (Super+Shift+P)
+  dock-pin add ID        pin an app by desktop file id (e.g. librewolf.desktop)
+  dock-pin remove ID     unpin
+  dock-pin open ID       raise the app's window, or start it
+  dock-pin render        rewrite the dock's modules from pins.json and reload the dock
+"""
+import configparser
+import glob
+import json
+import os
+import signal
+import subprocess
+import sys
+
+DOCK = os.path.expanduser("~/.config/waybar/dock")
+PINS = f"{DOCK}/pins.json"
+MODULES = f"{DOCK}/modules.jsonc"
+APP_DIRS = [os.path.expanduser("~/.local/share/applications"),
+            os.path.expanduser("~/.local/share/flatpak/exports/share/applications"),
+            "/var/lib/flatpak/exports/share/applications",
+            "/usr/local/share/applications", "/usr/share/applications"]
+ICON_SIZE = 36
+SELF = os.path.realpath(sys.argv[0])   # waybar runs click actions without our PATH
+# the taskbar's own ignore list (kept here because this file owns the taskbar module now)
+ALWAYS_IGNORE = ["dev.dropdown.ghostty"]
+
+
+def mmsg(*args):
+    out = subprocess.run(["mmsg", *args], capture_output=True, text=True).stdout
+    return json.loads(out) if out.strip() else {}
+
+
+def notify(msg):
+    subprocess.run(["notify-send", "-a", "Dock", "-i", "view-pin", msg])
+
+
+def load_pins():
+    try:
+        with open(PINS) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return []
+
+
+def save_pins(pins):
+    with open(PINS, "w") as f:
+        json.dump(pins, f, indent=2)
+        f.write("\n")
+
+
+def desktop_path(desktop_id):
+    for d in APP_DIRS:
+        p = os.path.join(d, desktop_id)
+        if os.path.isfile(p):
+            return p
+    return None
+
+
+def desktop_entry(path):
+    cp = configparser.ConfigParser(interpolation=None, strict=False)
+    cp.optionxform = str
+    try:
+        cp.read(path, encoding="utf-8")
+        return dict(cp["Desktop Entry"])
+    except (configparser.Error, KeyError, UnicodeDecodeError):
+        return {}
+
+
+def find_desktop(app_id):
+    """Desktop file id for a window's app_id: same name, StartupWMClass, or Exec name."""
+    want = app_id.lower()
+    seen, by_class, by_exec = set(), None, None
+    for d in APP_DIRS:
+        for p in sorted(glob.glob(f"{d}/*.desktop")):
+            name = os.path.basename(p)
+            if name in seen:
+                continue
+            seen.add(name)
+            if name[:-8].lower() == want:
+                return name
+            e = desktop_entry(p)
+            if e.get("NoDisplay") == "true":
+                continue
+            if by_class is None and e.get("StartupWMClass", "").lower() == want:
+                by_class = name
+            exe = os.path.basename(e.get("Exec", "").split(" ")[0]).lower()
+            if by_exec is None and exe == want:
+                by_exec = name
+    return by_class or by_exec
+
+
+def icon_file(icon):
+    if not icon:
+        icon = "application-x-executable"
+    if os.path.isabs(icon) and os.path.isfile(icon):
+        return icon
+    import gi
+    gi.require_version("Gtk", "3.0")
+    from gi.repository import Gtk
+    theme = Gtk.IconTheme.new()
+    name = subprocess.run(["gsettings", "get", "org.gnome.desktop.interface", "icon-theme"],
+                          capture_output=True, text=True).stdout.strip().strip("'")
+    if name:
+        theme.set_custom_theme(name)
+    for n in (icon, "application-x-executable"):
+        info = theme.lookup_icon(n, ICON_SIZE, Gtk.IconLookupFlags.FORCE_SIZE)
+        if info:
+            return info.get_filename()
+    return ""
+
+
+def render():
+    pins = load_pins()
+    modules, ignore = {}, list(ALWAYS_IGNORE)
+    for p in pins:
+        key = "image#pin-" + p["desktop"][:-8].replace(".", "-")
+        e = desktop_entry(desktop_path(p["desktop"]) or "")
+        modules[key] = {
+            "path": icon_file(e.get("Icon")),
+            "size": ICON_SIZE,
+            "tooltip": False,
+            "on-click": f"{SELF} open {p['desktop']}",
+            "on-click-right": f"{SELF} remove {p['desktop']}",
+        }
+        ignore.append(p["app_id"])
+    modules["wlr/taskbar"] = {
+        "format": "{icon}",
+        "icon-size": ICON_SIZE,
+        "tooltip-format": "{title}",
+        "on-click": "minimize-raise",
+        "on-click-middle": "close",
+        "ignore-list": ignore,
+    }
+    conf = {"modules-center": [k for k in modules if k.startswith("image#")] + ["wlr/taskbar"], **modules}
+    with open(MODULES, "w") as f:
+        f.write("// Generated by dock-pin from pins.json; edit pins with dock-pin, not here.\n")
+        json.dump(conf, f, indent=2)
+        f.write("\n")
+    reload_dock()
+
+
+def reload_dock():
+    # dock-autohide restarts the dock (hidden) when it exits, which picks up the new modules
+    cfg = f"{DOCK}/config.jsonc"
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit():
+            continue
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                argv = f.read().split(b"\0")
+        except OSError:
+            continue
+        if os.path.basename(argv[0]) == b"waybar" and cfg.encode() in argv:
+            os.kill(int(pid), signal.SIGTERM)
+
+
+def clients():
+    return mmsg("get", "all-clients").get("clients", [])
+
+
+def cmd_toggle():
+    c = mmsg("get", "focusing-client")
+    app_id = c.get("appid")
+    if not app_id:
+        notify("No focused window to pin")
+        return
+    pins = load_pins()
+    for p in pins:
+        if p["app_id"] == app_id:
+            cmd_remove(p["desktop"])
+            return
+    desktop = find_desktop(app_id)
+    if not desktop:
+        notify(f"Can't pin {app_id}: no app launcher found for it")
+        return
+    pins.append({"desktop": desktop, "app_id": app_id})
+    save_pins(pins)
+    render()
+    notify(f"Pinned {desktop_entry(desktop_path(desktop)).get('Name', desktop)} to the dock")
+
+
+def cmd_add(desktop):
+    path = desktop_path(desktop)
+    if not path:
+        sys.exit(f"no such app: {desktop}")
+    pins = load_pins()
+    if any(p["desktop"] == desktop for p in pins):
+        return
+    e = desktop_entry(path)
+    app_id = e.get("StartupWMClass") or desktop[:-8]
+    pins.append({"desktop": desktop, "app_id": app_id})
+    save_pins(pins)
+    render()
+
+
+def cmd_remove(desktop):
+    pins = load_pins()
+    left = [p for p in pins if p["desktop"] != desktop]
+    if len(left) == len(pins):
+        return
+    save_pins(left)
+    render()
+    notify(f"Unpinned {desktop_entry(desktop_path(desktop) or '').get('Name', desktop)}")
+
+
+def cmd_open(desktop):
+    pin = next((p for p in load_pins() if p["desktop"] == desktop), None)
+    app_id = pin["app_id"] if pin else desktop[:-8]
+    wins = [c for c in clients() if c.get("appid") == app_id]
+    if not wins:
+        subprocess.Popen(["gtk-launch", desktop[:-8]], start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
+    # like the taskbar's minimize-raise: a focused window minimizes, anything else comes forward
+    focused = next((c for c in wins if c.get("is_focused") and not c.get("is_minimized")), None)
+    if focused:
+        mmsg("dispatch", "minimized", f"client,{focused['id']}")
+        return
+    w = next((c for c in wins if c.get("is_minimized")), wins[0])
+    if w.get("is_minimized"):
+        mmsg("dispatch", "restore_minimized", f"client,{w['id']}")
+    mmsg("dispatch", f"focusid,{w['id']}")
+
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        sys.exit(__doc__)
+    cmd, rest = args[0], args[1:]
+    if cmd == "toggle":
+        cmd_toggle()
+    elif cmd in ("add", "remove", "open") and len(rest) == 1:
+        {"add": cmd_add, "remove": cmd_remove, "open": cmd_open}[cmd](rest[0])
+    elif cmd == "render":
+        render()
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

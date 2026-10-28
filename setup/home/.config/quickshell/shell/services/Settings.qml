@@ -13,7 +13,8 @@ Singleton {
         clock24h: false,
         showCpu: true, showRam: true, showMedia: true,
         scheme: "scheme-monochrome",
-        barStyle: "pills"   // pills | mac
+        barStyle: "pills",  // pills | mac
+        dockPins: []        // desktop entry ids pinned to the dock, in order
     })
     property var values: defaults
     property bool loaded: false

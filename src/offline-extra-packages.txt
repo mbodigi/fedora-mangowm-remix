@@ -1,0 +1,13 @@
+# Not installed on the original machine, but the installer may need them from the offline repo:
+# bootloaders for the machines that can't use systemd-boot (Secure Boot on: shim + GRUB; old BIOS: GRUB)
+shim-x64
+grub2-efi-x64
+grub2-efi-x64-cdboot
+grub2-pc
+grub2-pc-modules
+grub2-tools
+grub2-tools-minimal
+grub2-tools-extra
+grubby
+efibootmgr
+systemd-boot-unsigned

@@ -38,7 +38,7 @@ done
 find "$S/home" \( -name '*.bak*' -o -name '*.backup*' -o -name '.git' -o -name 'node_modules' \) -prune -exec rm -rf {} +
 
 # portability: helper scripts move to /usr/local/bin, the home path becomes @HOME@ (filled in per user)
-sed -i "s#$H/.local/bin/#/usr/local/bin/#g" "$S/home/.config/mango/dms/binds.conf"
+grep -rlI "$H/.local/bin/" "$S/home" | xargs -r sed -i "s#$H/.local/bin/#/usr/local/bin/#g"
 sed -i "s#^exec_once=~/.local/bin/dock-autohide#exec_once=/usr/local/bin/dock-autohide#" "$S/home/.config/mango/config.conf"
 grep -q shell-firstlogin "$S/home/.config/mango/config.conf" ||
     printf '\n# first login of a new user: dconf settings (fonts, theme, Celluloid)\nexec_once=/usr/local/bin/shell-firstlogin\n' >> "$S/home/.config/mango/config.conf"
@@ -62,8 +62,12 @@ for p in "${sys_items[@]}"; do
     cp -a "$p" "$S/root$p"
 done
 mkdir -p "$S/root/usr/local/bin"
-cp -a "$H"/.local/bin/{shot,dock-autohide,mango-cycle} src/shell-user-setup src/shell-firstlogin "$S/root/usr/local/bin/"
+cp -a "$H"/.local/bin/{shot,dock-autohide,dock-pin,mango-cycle} src/shell-user-setup src/shell-firstlogin "$S/root/usr/local/bin/"
 chmod 755 "$S/root/usr/local/bin/"*
+
+# the login screen's account: created by sysusers.d/tmpfiles.d (no Fedora package provides it)
+install -Dm644 src/system/shell-greeter.sysusers "$S/root/usr/lib/sysusers.d/shell-greeter.conf"
+install -Dm644 src/system/shell-greeter.tmpfiles "$S/root/usr/lib/tmpfiles.d/shell-greeter.conf"
 
 # LibreWolf tweaks: profile user.js -> defaults for every new profile
 lw=$(ls -d "$H"/.config/librewolf/librewolf/*.default-release | head -1)

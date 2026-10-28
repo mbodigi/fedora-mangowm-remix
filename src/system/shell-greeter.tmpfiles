@@ -1,0 +1,2 @@
+# Home of the login screen's account (Quickshell/Mango keep their cache there)
+d /var/lib/greeter 0755 greeter greeter -

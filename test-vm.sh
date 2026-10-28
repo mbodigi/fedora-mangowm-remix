@@ -4,14 +4,17 @@
 #   test user "test" / password "test", 30 GB virtual disk, wiped.
 #   ./test-vm.sh try       boot the ISO to the installer (installs nothing)
 #   ./test-vm.sh screenshot
-#   ./test-vm.sh install   install from out/Fedora-Shell-44-netinst.iso (VM powers off when done)
+#   ./test-vm.sh install   install from out/Fedora-Shell-44-offline.iso, with no network (VM powers off when done)
 #   ./test-vm.sh boot      boot the installed VM
 #   ./test-vm.sh delete    remove the VM and its disk
 set -euo pipefail
 cd "$(dirname "$0")"
 NAME=shell-test
 C=qemu:///session
-ISO=$PWD/out/Fedora-Shell-44-netinst.iso
+ISO=${ISO:-$PWD/out/Fedora-Shell-44-offline.iso}
+MEM=${MEM:-3072}
+# no network by default: proves the install is offline (NET='--network user' to give it one)
+NET=${NET:---network none}
 T=$PWD/test
 mkdir -p "$T"
 
@@ -21,7 +24,7 @@ try)
     # stops at its summary screen and nothing is installed
     [ -f "$ISO" ] || { echo "build the ISO first"; exit 1; }
     virt-install --connect $C --name $NAME --osinfo fedora-unknown \
-        --memory 3072 --vcpus 2 \
+        --memory $MEM --vcpus 2 \
         --boot uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no \
         --disk size=30,format=qcow2 \
         --cdrom "$ISO" \
@@ -52,12 +55,12 @@ EOF
     } > "$T/test.ks"
     rm -f "$T/serial.log"
     virt-install --connect $C --name $NAME --osinfo fedora-unknown \
-        --memory 3072 --vcpus 2 \
+        --memory $MEM --vcpus 2 \
         --boot uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no \
         --disk size=30,format=qcow2 \
         --location "$ISO" --initrd-inject "$T/test.ks" \
-        --extra-args "inst.ks=file:/test.ks console=tty0 console=ttyS0,115200" \
-        --network user --graphics spice --video virtio \
+        --extra-args "inst.ks=file:/test.ks inst.stage2=hd:LABEL=Fedora-E-dvd-x86_64-44 inst.repo=hd:LABEL=Fedora-E-dvd-x86_64-44:/shellrepo console=tty0 console=ttyS0,115200" \
+        $NET --graphics spice --video virtio \
         --serial file,path="$T/serial.log" \
         --noautoconsole --noreboot
     ;;

@@ -1,3 +1,6 @@
 {
-  "barStyle": "mac"
+  "barStyle": "mac",
+  "dockPins": [
+    "librewolf"
+  ]
 }
