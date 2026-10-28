@@ -1,16 +1,15 @@
-# Fedora 44 + our MangoWM/Quickshell desktop, installed offline from the packages on the ISO.
+# Fedora 44 + our MangoWM/Quickshell desktop: net-install (packages download during the install),
+# or offline (OFFLINE=1: every package comes from /shellrepo on the ISO).
 # Language, keyboard, disk, time zone and the user are left to the installer screens (next, next, finish).
 # pack.sh fills in @PACKAGES@ and writes build/shell-setup.ks.
 
 graphical
 
-# Network (not needed to install): DHCP on the first cable with a link; Wi-Fi can be set in "Network & Host Name".
+# Network: DHCP on the first cable with a link; Wi-Fi can be set in "Network & Host Name".
 # The connection used here is copied to the installed system.
 network --device=link --bootproto=dhcp --activate --onboot=yes
 
-# Offline: every package comes from /shellrepo on the ISO (the boot menu passes
-# inst.repo=hd:LABEL=...:/shellrepo). The installed system gets the normal online repo files
-# for later updates.
+@REPOS@
 
 # bootloader: picked per machine by %pre below
 %include /tmp/bootloader.ks

@@ -13,7 +13,7 @@ H=$HOME
 S=setup
 P=private
 rm -rf "$S" "$P"
-mkdir -p "$S/root" "$S/home" "$S/greeter-cache" "$P/home/Pictures" "$P/greeter-cache"
+mkdir -p "$S/root" "$S/home" "$S/greeter-cache" "$P/home/.local/share/wallpapers" "$P/greeter-cache"
 
 # ---------- user configs -> setup/home ----------
 home_items=(
@@ -78,7 +78,7 @@ sed 's/^user_pref(/pref(/' "$lw/user.js" > "$S/root/usr/share/librewolf/defaults
 cp /var/cache/shell-greeter/colors.json "$S/greeter-cache/"
 
 # ---------- wallpapers -> private/ (not committed) ----------
-cp -a "$H"/Pictures/wallhaven-* "$P/home/Pictures/"
+cp -a "$H"/.local/share/wallpapers/. "$P/home/.local/share/wallpapers/"
 cp /var/cache/shell-greeter/wallpaper "$P/greeter-cache/"
 
 # ---------- packages ----------

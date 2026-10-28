@@ -1,10 +1,12 @@
 #!/bin/bash
-# Build the offline install ISO: Fedora's official netinst ISO (for its installer) + our kickstart,
-# the setup bundle, and every package in an on-ISO repo (/shellrepo), so installing needs no internet.
+# Build the install ISO: Fedora's official netinst ISO (for its installer) + our kickstart + the setup bundle.
+# By default it's a net-install ISO (~1.2 GB, packages download during the install). With OFFLINE=1 every
+# package also goes on the ISO in a repo (/shellrepo, ~3.8 GB), so installing needs no internet.
 # Builds from setup/ (via ./pack.sh). Uses a rootless podman container for the tools (lorax/mkksiso,
 # pykickstart), so nothing is installed on this machine.
 #   ./build-iso.sh            ->  out/fedora-mangowm-remix-VERSION-x86_64-personal.iso  (with your wallpapers, for yourself)
 #   PUBLIC=1 ./build-iso.sh   ->  out/fedora-mangowm-remix-VERSION-x86_64.iso           (repo contents only, safe to publish)
+#   OFFLINE=1 ...             ->  the same names with -offline before .iso
 # Then ./release.sh splits the public one for GitHub and makes its checksum and torrent.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -16,6 +18,7 @@ SUM=Fedora-Everything-44-1.7-x86_64-CHECKSUM
 LABEL=Fedora-E-dvd-x86_64-44   # the ISO's volume label (mkksiso keeps it); the installer finds /shellrepo by it
 VERSION=$(cat VERSION)          # e.g. 44.1: Fedora release . build number
 NAME=fedora-mangowm-remix-$VERSION-x86_64
+[ "${OFFLINE:-0}" = 1 ] && NAME=$NAME-offline
 OUT_ISO=$NAME-personal.iso
 [ "${PUBLIC:-0}" = 1 ] && OUT_ISO=$NAME.iso
 
@@ -41,8 +44,12 @@ if ! podman image exists $TOOLS; then
     podman rm iso-tools-build >/dev/null
 fi
 
-# every package, with dependencies, into build/shellrepo (rootless container, ~2.5 GB the first time)
-podman run --rm --security-opt label=disable -v "$PWD:/work" registry.fedoraproject.org/fedora:$REL bash /work/src/make-repo.sh
+# offline: every package into build/shellrepo (rootless container, ~2.5 GB the first time)
+ADD=(--add build/shell-bundle.tar.gz)
+if [ "${OFFLINE:-0}" = 1 ]; then
+    podman run --rm --security-opt label=disable -v "$PWD:/work" registry.fedoraproject.org/fedora:$REL bash /work/src/make-repo.sh
+    ADD+=(--add build/shellrepo -c "inst.repo=hd:LABEL=$LABEL:/shellrepo")
+fi
 
 # validate a copy with the %pre-generated bootloader line filled in (that file only exists in the installer)
 sed "s|^%include /tmp/bootloader.ks|bootloader --sdboot|" build/shell-setup.ks > build/validate.ks
@@ -54,8 +61,7 @@ rm -f "out/$OUT_ISO"; mkdir -p build/tmp
 podman save -q $TOOLS | pkexec sh -euc "
     podman load -q >/dev/null
     podman run --rm --privileged -v /dev:/dev -v '$PWD:/work' -w /work $TOOLS \
-        mkksiso --tmp /work/build/tmp --ks build/shell-setup.ks --add build/shell-bundle.tar.gz --add build/shellrepo \
-            -c 'inst.repo=hd:LABEL=$LABEL:/shellrepo' download/$ISO out/$OUT_ISO
+        mkksiso --tmp /work/build/tmp --ks build/shell-setup.ks ${ADD[*]@Q} download/$ISO out/$OUT_ISO
     chown -R $(id -u):$(id -g) '$PWD/out' '$PWD/build/tmp'
 "
 ls -lh "out/$OUT_ISO"

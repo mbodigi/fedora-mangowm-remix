@@ -1,6 +1,20 @@
 {
+  "lockBattery": 5,
+  "screenOffBattery": 6,
+  "sleepBattery": 15,
+  "lockAC": 10,
+  "screenOffAC": 11,
+  "sleepAC": 0,
+  "clock24h": false,
+  "showCpu": true,
+  "showRam": true,
+  "showMedia": true,
+  "scheme": "scheme-monochrome",
   "barStyle": "mac",
   "dockPins": [
-    "librewolf"
+    "librewolf",
+    "brave-browser",
+    "thunar",
+    "brave-agimnkijcaahngcdmfeangaknmldooml-Default"
   ]
 }

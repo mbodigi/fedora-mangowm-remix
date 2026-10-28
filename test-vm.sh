@@ -4,7 +4,7 @@
 #   test user "test" / password "test", 30 GB virtual disk, wiped.
 #   ./test-vm.sh try       boot the ISO to the installer (installs nothing)
 #   ./test-vm.sh screenshot
-#   ./test-vm.sh install   install from out/fedora-mangowm-remix-VERSION-x86_64.iso, with no network (VM powers off when done)
+#   ./test-vm.sh install   install from out/fedora-mangowm-remix-VERSION-x86_64.iso (offline ISOs: with no network)
 #   ./test-vm.sh boot      boot the installed VM
 #   ./test-vm.sh delete    remove the VM and its disk
 set -euo pipefail
@@ -13,8 +13,11 @@ NAME=shell-test
 C=qemu:///session
 ISO=${ISO:-$PWD/out/fedora-mangowm-remix-$(cat VERSION)-x86_64.iso}
 MEM=${MEM:-3072}
-# no network by default: proves the install is offline (NET='--network user' to give it one)
-NET=${NET:---network none}
+# an offline ISO is tested with no network (proves it needs none); a net-install ISO needs one
+case "$ISO" in
+    *-offline*) NET=${NET:---network none}; REPO="inst.repo=hd:LABEL=Fedora-E-dvd-x86_64-44:/shellrepo" ;;
+    *)          NET=${NET:---network user}; REPO="" ;;
+esac
 T=$PWD/test
 mkdir -p "$T"
 
@@ -59,7 +62,7 @@ EOF
         --boot uefi,firmware.feature0.name=secure-boot,firmware.feature0.enabled=no \
         --disk size=30,format=qcow2 \
         --location "$ISO" --initrd-inject "$T/test.ks" \
-        --extra-args "inst.ks=file:/test.ks inst.stage2=hd:LABEL=Fedora-E-dvd-x86_64-44 inst.repo=hd:LABEL=Fedora-E-dvd-x86_64-44:/shellrepo console=tty0 console=ttyS0,115200" \
+        --extra-args "inst.ks=file:/test.ks inst.stage2=hd:LABEL=Fedora-E-dvd-x86_64-44 $REPO console=tty0 console=ttyS0,115200" \
         $NET --graphics spice --video virtio \
         --serial file,path="$T/serial.log" \
         --noautoconsole --noreboot

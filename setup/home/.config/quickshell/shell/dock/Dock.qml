@@ -110,6 +110,13 @@ Scope {
                 else hideDelay.restart();
             }
             Timer { id: hideDelay; interval: 500; onTriggered: perScreen.shown = perScreen.wanted }
+
+            // pinning (or an app opening/closing) rebuilds the icons, and an icon destroyed with its
+            // menu open never reports the menu closing; any open menu is gone with it, so reset
+            Connections {
+                target: root
+                function onItemsChanged() { perScreen.menuOpen = false; }
+            }
             Component.onCompleted: shown = wanted
 
             // 1px strip at the left edge that reveals the dock

@@ -10,7 +10,7 @@ and a uniform monochrome theme with JetBrains Mono everywhere.
 
 This repo can rebuild that desktop two ways:
 
-1. **An offline install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
+1. **An install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
    installer, and you get this exact desktop on first login.
 2. **A script for an existing Fedora 44** (`install.sh`): turns a stock install into this desktop.
 
@@ -65,32 +65,31 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 
 ### Download it
 
-A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-mangowm-remix/releases).
-It's 3.8 GB, more than GitHub's 2 GB limit per file, so it comes in three parts. Download all
-the parts and the `.sha256` file into one folder, then join and check them:
+The ISO is on the [Releases page](https://github.com/mbodigi/fedora-mangowm-remix/releases):
+`fedora-mangowm-remix-VERSION-x86_64.iso` (about 1.2 GB), with its `.sha256`. Check it before
+writing it to a USB stick:
 
 ```bash
-cat fedora-mangowm-remix-44.1-x86_64.iso.part* > fedora-mangowm-remix-44.1-x86_64.iso
-sha256sum -c fedora-mangowm-remix-44.1-x86_64.iso.sha256
+sha256sum -c fedora-mangowm-remix-VERSION-x86_64.iso.sha256
 ```
 
-Or with **BitTorrent**: open `fedora-mangowm-remix-44.1-x86_64.torrent` from the release (or the magnet link below) in
-any torrent client (qBittorrent, Transmission…). It downloads the same files into a
-`fedora-mangowm-remix-44.1` folder; join and check them the same way. GitHub is built in as a web seed, so it
-works even when nobody else is seeding.
+Or with **BitTorrent**: open the release's `.torrent` (or the magnet link below) in any torrent
+client (qBittorrent, Transmission…). GitHub is built in as a web seed, so it works even when nobody
+else is seeding.
 
 ```
-magnet:?xt=urn:btih:28a76ac2e468941dbdb606276cfdc62cdc73a985&dn=fedora-mangowm-remix-44.1&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-mangowm-remix%2Freleases%2Fdownload%2F
+magnet:?xt=urn:btih:9d0b5bba70f480c985ba05e9432c091ee52dde99&dn=fedora-mangowm-remix-44.2&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-mangowm-remix%2Freleases%2Fdownload%2F
 ```
 
-It's Fedora's official net-install image (for its installer) with this repo's kickstart, configs
-and **every package** added, so installing needs no internet. The installer screens still say
-Fedora. Or build it yourself:
+It's Fedora's official net-install image (for its installer) with this repo's kickstart and
+configs added, so the installer screens still say Fedora. **The packages (about 2.5 GB) download
+during the install**, so it needs internet. For an install without internet, build the offline
+variant yourself (below). Or build either one yourself:
 
 ### Build the ISO
 
-Requirements: Fedora with `podman` and `curl`, about 12 GB of free disk space, and an internet connection
-(about 3.8 GB of downloads the first time; later builds only fetch updated packages).
+Requirements: Fedora with `podman` and `curl`, about 3 GB of free disk space (12 GB for the offline
+variant), and an internet connection.
 
 ```bash
 git clone https://github.com/mbodigi/fedora-mangowm-remix.git
@@ -105,28 +104,29 @@ What `build-iso.sh` does:
 2. Downloads Fedora's **official** net-install ISO (`Fedora-Everything-netinst-x86_64-44-1.7.iso`, 1.2 GB)
    and checks it against Fedora's **GPG-signed checksum** file. It stops if the check fails.
 3. Builds a small container image with Fedora's ISO tools (lorax, pykickstart, xorriso), once.
-4. Runs `src/make-repo.sh` in a clean Fedora container with the same repos as the installed system:
+4. Offline variant only (`OFFLINE=1`): runs `src/make-repo.sh` in a clean Fedora container with the same repos as the installed system:
    downloads every package in `setup/packages.txt` (plus the GRUB/shim bootloader packages for
    Secure Boot and BIOS machines) with all dependencies into `download/rpms/`, and makes
    `build/shellrepo/` a package repo with Fedora's package groups.
 5. Validates the kickstart with `ksvalidator`.
-6. Runs `mkksiso` to add the kickstart, the bundle and the package repo to the ISO, and points all
-   boot menus (BIOS, UEFI and the UEFI boot image) at them (`inst.ks=…` and
+6. Runs `mkksiso` to add the kickstart and the bundle (plus the package repo, offline) to the ISO,
+   and points all boot menus (BIOS, UEFI and the UEFI boot image) at them (`inst.ks=…`, and offline
    `inst.repo=hd:LABEL=…:/shellrepo`). This step needs root (it uses a loop device), so a password
    prompt appears.
 
-Result: `out/fedora-mangowm-remix-VERSION-x86_64-personal.iso` (about 3.8 GB; `VERSION` is in the
-file of that name, e.g. `44.1`). With `PUBLIC=1 ./build-iso.sh` it leaves out the local wallpapers
+Result: `out/fedora-mangowm-remix-VERSION-x86_64-personal.iso` (about 1.2 GB; `VERSION` is in the
+file of that name, e.g. `44.2`). With `OFFLINE=1 ./build-iso.sh` you get
+`…-x86_64-offline-personal.iso` instead (about 3.8 GB, every package on it, no internet needed to install). With `PUBLIC=1 ./build-iso.sh` it leaves out the local wallpapers
 (`private/`) and writes `out/fedora-mangowm-remix-VERSION-x86_64.iso` instead; that's the one
-published on the Releases page. `./release.sh` then splits it for GitHub and makes its checksum and
-torrent in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
+published on the Releases page. `./release.sh` then prepares it for GitHub (one file; an offline ISO, which is
+over GitHub's 2 GB limit, in parts) and makes its checksum and torrent in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
 
 ### Write it to a USB stick
 
-Use an 8 GB or bigger stick, with **Fedora Media Writer** or `dd` (this erases the stick; double-check the device name with `lsblk`):
+Use a 2 GB or bigger stick (8 GB for the offline variant), with **Fedora Media Writer** or `dd` (this erases the stick; double-check the device name with `lsblk`):
 
 ```bash
-sudo dd if=fedora-mangowm-remix-44.1-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=fedora-mangowm-remix-VERSION-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
 ### Install
@@ -135,23 +135,25 @@ sudo dd if=fedora-mangowm-remix-44.1-x86_64.iso of=/dev/sdX bs=4M status=progres
 2. Pick **Install Fedora 44** in the boot menu.
 3. In the installer fill in only these screens:
    - **Installation Destination**: pick the disk (Automatic partitioning is fine)
-   - **Network & Host Name**: optional; set up Wi-Fi here if you want it on the new system
+   - **Network & Host Name**: a cable connects by itself; for Wi-Fi, pick your network here
+     (the packages download during the install; offline variant: optional)
    - **Time & Date**: your time zone
    - **User Creation**: your username and password; tick **Make this user administrator**
 4. **Do not change Software Selection.** It must say *Custom software selected*. Choosing an
    environment there replaces this setup's package list.
-5. Click **Begin Installation**. Everything is installed from the USB stick; no internet needed.
-   In a test VM the whole install took about 17 minutes.
+5. Click **Begin Installation**. The packages download from the internet (about 2.5 GB), then
+   everything is set up. The offline variant installs from the USB stick instead (about 17 minutes
+   in a test VM).
 6. Reboot: systemd-boot, then the login screen, then the desktop.
 
 ### What the installer does
 
-- **Packages**: all from the repo on the ISO (`/shellrepo`). The installed system gets the normal
-  online repos for updates: Fedora + updates, RPM Fusion free/nonfree, terra (MangoWM, Ghostty,
+- **Packages**: downloaded during the install from the same repos the installed system uses (the
+  offline variant installs them from `/shellrepo` on the ISO): Fedora + updates, RPM Fusion free/nonfree, terra (MangoWM, Ghostty,
   VSCodium), the official [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell),
   Brave, LibreWolf and Cisco OpenH264.
-- **Network**: not needed to install. DHCP on a connected cable; Wi-Fi can be set up in the
-  installer, and that connection is copied to the new system. NetworkManager's connectivity
+- **Network**: DHCP on a connected cable; Wi-Fi can be set up in the installer, and that
+  connection is copied to the new system. NetworkManager's connectivity
   check is installed, so the shell notices Wi-Fi login pages.
 - **Bootloader**, picked per machine in the kickstart `%pre`:
   - UEFI with Secure Boot **off**: **systemd-boot**
@@ -229,7 +231,9 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 ├── src/make-torrent.py   .torrent of a release's files, with GitHub as a web seed
 ├── src/
 │   ├── shell-setup.ks.in kickstart template (@PACKAGES@ is filled in by pack.sh)
-│   ├── make-repo.sh      downloads every package into the on-ISO repo (runs in a container)
+│   ├── repos-online.ks   the repos a net-install downloads from (default)
+│   ├── repos-offline.ks  … or the repo on the ISO (OFFLINE=1)
+│   ├── make-repo.sh      offline: downloads every package into the on-ISO repo (runs in a container)
 │   ├── offline-extra-packages.txt  bootloaders the installer may need (GRUB, shim)
 │   ├── system/           sysusers.d / tmpfiles.d for the login screen's account
 │   ├── shell-user-setup  copies the configs to a user, fills in @HOME@
@@ -244,7 +248,8 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 Not in the repo (see `.gitignore`): `build/`, `download/`, `out/`, `test/`, and `private/`,
 which holds the wallpapers. They're other people's art from [wallhaven](https://wallhaven.cc),
 so they're only kept on the original machine. Installs built from a fresh clone start without a
-wallpaper: pick one with `Super + Y` (the dashboard can search and download from wallhaven),
+wallpaper: pick one with `Super + Y` (the dashboard can search and download from wallhaven; wallpapers live in the hidden
+`~/.local/share/wallpapers/`),
 and the whole theme is regenerated from it.
 
 ## Not carried over

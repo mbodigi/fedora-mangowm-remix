@@ -17,10 +17,12 @@ cp setup/root/etc/yum.repos.d/*.repo /etc/yum.repos.d/
 dnf -y -q install createrepo_c zstd dnf5-plugins >/dev/null
 dnf -y -q makecache >/dev/null
 
-# downloads are kept in download/rpms between builds; only new or updated packages are fetched
+# downloads are kept in download/rpms between builds; only new or updated packages are fetched.
+# No weak deps: packages.txt already lists the recommended ones the system really has, and the
+# rest (Docker, TeX Live, SciPy… pulled in as optional extras) are ~200 MB nobody installed.
 mkdir -p download/rpms
 pkgs=$(grep -vh '^#' setup/packages.txt src/offline-extra-packages.txt | sort -u)
-dnf download -q --setopt=max_parallel_downloads=15 --resolve --alldeps --skip-unavailable --arch x86_64 --arch noarch --destdir download/rpms $pkgs
+dnf download -q --setopt=max_parallel_downloads=15 --setopt=install_weak_deps=False --resolve --alldeps --skip-unavailable --arch x86_64 --arch noarch --destdir download/rpms $pkgs
 
 # newest version of each package only (older ones pile up in the cache across builds)
 rm -rf build/shellrepo; mkdir -p build/shellrepo/Packages
