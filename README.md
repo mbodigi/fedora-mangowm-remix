@@ -1,4 +1,4 @@
-# Fedora Shell Setup
+# Fedora MangoWM Remix
 
 A complete, reproducible Fedora 44 desktop: **MangoWM** (a Wayland compositor) with a
 **hand-written Quickshell shell**, a Waybar dock, a custom login screen, systemd-boot,
@@ -70,17 +70,17 @@ It's 3.8 GB, more than GitHub's 2 GB limit per file, so it comes in three parts.
 the parts and the `.sha256` file into one folder, then join and check them:
 
 ```bash
-cat Shell-Setup-44-Remix-offline.iso.part-* > Shell-Setup-44-Remix-offline.iso
-sha256sum -c Shell-Setup-44-Remix-offline.iso.sha256
+cat fedora-mangowm-remix-44.1-x86_64.iso.part* > fedora-mangowm-remix-44.1-x86_64.iso
+sha256sum -c fedora-mangowm-remix-44.1-x86_64.iso.sha256
 ```
 
-Or with **BitTorrent**: open `v44-2026.10.28.torrent` from the release (or the magnet link below) in
+Or with **BitTorrent**: open `fedora-mangowm-remix-44.1-x86_64.torrent` from the release (or the magnet link below) in
 any torrent client (qBittorrent, Transmission…). It downloads the same files into a
-`v44-2026.10.28` folder; join and check them the same way. GitHub is built in as a web seed, so it
+`fedora-mangowm-remix-44.1` folder; join and check them the same way. GitHub is built in as a web seed, so it
 works even when nobody else is seeding.
 
 ```
-magnet:?xt=urn:btih:65ac129f7e551f35b626605be4d7d3b6347d64e4&dn=v44-2026.10.28&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-shell-setup%2Freleases%2Fdownload%2F
+magnet:?xt=urn:btih:28a76ac2e468941dbdb606276cfdc62cdc73a985&dn=fedora-mangowm-remix-44.1&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-shell-setup%2Freleases%2Fdownload%2F
 ```
 
 It's Fedora's official net-install image (for its installer) with this repo's kickstart, configs
@@ -115,16 +115,18 @@ What `build-iso.sh` does:
    `inst.repo=hd:LABEL=…:/shellrepo`). This step needs root (it uses a loop device), so a password
    prompt appears.
 
-Result: `out/Fedora-Shell-44-offline.iso` (about 3.8 GB). With `PUBLIC=1 ./build-iso.sh` it leaves
-out the local wallpapers (`private/`) and writes `out/Shell-Setup-44-Remix-offline.iso` instead;
-that's the one published on the Releases page.
+Result: `out/fedora-mangowm-remix-VERSION-x86_64-personal.iso` (about 3.8 GB; `VERSION` is in the
+file of that name, e.g. `44.1`). With `PUBLIC=1 ./build-iso.sh` it leaves out the local wallpapers
+(`private/`) and writes `out/fedora-mangowm-remix-VERSION-x86_64.iso` instead; that's the one
+published on the Releases page. `./release.sh` then splits it for GitHub and makes its checksum and
+torrent in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
 
 ### Write it to a USB stick
 
 Use an 8 GB or bigger stick, with **Fedora Media Writer** or `dd` (this erases the stick; double-check the device name with `lsblk`):
 
 ```bash
-sudo dd if=out/Fedora-Shell-44-offline.iso of=/dev/sdX bs=4M status=progress oflag=sync
+sudo dd if=fedora-mangowm-remix-44.1-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ```
 
 ### Install
@@ -219,6 +221,8 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 .
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
 ├── pack.sh               setup/ -> build/ (kickstart + bundle)
+├── VERSION               release version (Fedora release . build), used in every file name
+├── release.sh            split the public ISO for GitHub + checksum + torrent
 ├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle + package repo -> out/*.iso
 ├── install.sh            apply the setup to an existing Fedora 44
 ├── test-vm.sh            try the ISO in a VM

@@ -3,8 +3,9 @@
 # the setup bundle, and every package in an on-ISO repo (/shellrepo), so installing needs no internet.
 # Builds from setup/ (via ./pack.sh). Uses a rootless podman container for the tools (lorax/mkksiso,
 # pykickstart), so nothing is installed on this machine.
-#   ./build-iso.sh            ->  out/Fedora-Shell-44-offline.iso         (with your wallpapers, for yourself)
-#   PUBLIC=1 ./build-iso.sh   ->  out/Shell-Setup-44-Remix-offline.iso    (repo contents only, safe to publish)
+#   ./build-iso.sh            ->  out/fedora-mangowm-remix-VERSION-x86_64-personal.iso  (with your wallpapers, for yourself)
+#   PUBLIC=1 ./build-iso.sh   ->  out/fedora-mangowm-remix-VERSION-x86_64.iso           (repo contents only, safe to publish)
+# Then ./release.sh splits the public one for GitHub and makes its checksum and torrent.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -13,8 +14,10 @@ BASE=https://dl.fedoraproject.org/pub/fedora/linux/releases/$REL/Everything/x86_
 ISO=Fedora-Everything-netinst-x86_64-44-1.7.iso
 SUM=Fedora-Everything-44-1.7-x86_64-CHECKSUM
 LABEL=Fedora-E-dvd-x86_64-44   # the ISO's volume label (mkksiso keeps it); the installer finds /shellrepo by it
-OUT_ISO=Fedora-Shell-44-offline.iso
-[ "${PUBLIC:-0}" = 1 ] && OUT_ISO=Shell-Setup-44-Remix-offline.iso
+VERSION=$(cat VERSION)          # e.g. 44.1: Fedora release . build number
+NAME=fedora-mangowm-remix-$VERSION-x86_64
+OUT_ISO=$NAME-personal.iso
+[ "${PUBLIC:-0}" = 1 ] && OUT_ISO=$NAME.iso
 
 ./pack.sh
 mkdir -p download out

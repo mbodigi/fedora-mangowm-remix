@@ -4,14 +4,14 @@
 #   test user "test" / password "test", 30 GB virtual disk, wiped.
 #   ./test-vm.sh try       boot the ISO to the installer (installs nothing)
 #   ./test-vm.sh screenshot
-#   ./test-vm.sh install   install from out/Fedora-Shell-44-offline.iso, with no network (VM powers off when done)
+#   ./test-vm.sh install   install from out/fedora-mangowm-remix-VERSION-x86_64.iso, with no network (VM powers off when done)
 #   ./test-vm.sh boot      boot the installed VM
 #   ./test-vm.sh delete    remove the VM and its disk
 set -euo pipefail
 cd "$(dirname "$0")"
 NAME=shell-test
 C=qemu:///session
-ISO=${ISO:-$PWD/out/Fedora-Shell-44-offline.iso}
+ISO=${ISO:-$PWD/out/fedora-mangowm-remix-$(cat VERSION)-x86_64.iso}
 MEM=${MEM:-3072}
 # no network by default: proves the install is offline (NET='--network user' to give it one)
 NET=${NET:---network none}
