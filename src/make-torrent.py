@@ -13,7 +13,7 @@ import sys
 import time
 import urllib.parse
 
-REPO = "mbodigi/fedora-shell-setup"
+REPO = "mbodigi/fedora-mangowm-remix"
 PIECE = 8 * 1024 * 1024          # 8 MiB: a few hundred pieces for a ~4 GB release
 TRACKERS = [
     "udp://tracker.opentrackr.org:1337/announce",
@@ -67,7 +67,7 @@ def main():
         # web seed: base URL + name ("TAG") + "/" + file name = the release download URL
         "url-list": [f"https://github.com/{REPO}/releases/download/"],
         "comment": f"https://github.com/{REPO}/releases/tag/{tag}",
-        "created by": "fedora-shell-setup make-torrent.py",
+        "created by": "fedora-mangowm-remix make-torrent.py",
         "creation date": int(time.time()),
         "info": info,
     }

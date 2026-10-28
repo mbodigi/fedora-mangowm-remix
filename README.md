@@ -65,7 +65,7 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 
 ### Download it
 
-A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-shell-setup/releases).
+A ready-made ISO is on the [Releases page](https://github.com/mbodigi/fedora-mangowm-remix/releases).
 It's 3.8 GB, more than GitHub's 2 GB limit per file, so it comes in three parts. Download all
 the parts and the `.sha256` file into one folder, then join and check them:
 
@@ -80,7 +80,7 @@ any torrent client (qBittorrent, Transmission…). It downloads the same files i
 works even when nobody else is seeding.
 
 ```
-magnet:?xt=urn:btih:28a76ac2e468941dbdb606276cfdc62cdc73a985&dn=fedora-mangowm-remix-44.1&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-shell-setup%2Freleases%2Fdownload%2F
+magnet:?xt=urn:btih:28a76ac2e468941dbdb606276cfdc62cdc73a985&dn=fedora-mangowm-remix-44.1&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-mangowm-remix%2Freleases%2Fdownload%2F
 ```
 
 It's Fedora's official net-install image (for its installer) with this repo's kickstart, configs
@@ -93,8 +93,8 @@ Requirements: Fedora with `podman` and `curl`, about 12 GB of free disk space, a
 (about 3.8 GB of downloads the first time; later builds only fetch updated packages).
 
 ```bash
-git clone https://github.com/mbodigi/fedora-shell-setup.git
-cd fedora-shell-setup
+git clone https://github.com/mbodigi/fedora-mangowm-remix.git
+cd fedora-mangowm-remix
 ./build-iso.sh
 ```
 
@@ -174,8 +174,8 @@ ISO boot on BIOS, UEFI and Secure Boot machines. It doesn't affect the installed
 On a fresh Fedora 44 (any edition or spin), as your normal user:
 
 ```bash
-git clone https://github.com/mbodigi/fedora-shell-setup.git
-cd fedora-shell-setup
+git clone https://github.com/mbodigi/fedora-mangowm-remix.git
+cd fedora-mangowm-remix
 ./install.sh
 ```
 
