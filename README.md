@@ -74,6 +74,15 @@ cat Shell-Setup-44-Remix-offline.iso.part-* > Shell-Setup-44-Remix-offline.iso
 sha256sum -c Shell-Setup-44-Remix-offline.iso.sha256
 ```
 
+Or with **BitTorrent**: open `v44-2026.10.28.torrent` from the release (or the magnet link below) in
+any torrent client (qBittorrent, Transmission…). It downloads the same files into a
+`v44-2026.10.28` folder; join and check them the same way. GitHub is built in as a web seed, so it
+works even when nobody else is seeding.
+
+```
+magnet:?xt=urn:btih:65ac129f7e551f35b626605be4d7d3b6347d64e4&dn=v44-2026.10.28&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&ws=https%3A%2F%2Fgithub.com%2Fmbodigi%2Ffedora-shell-setup%2Freleases%2Fdownload%2F
+```
+
 It's Fedora's official net-install image (for its installer) with this repo's kickstart, configs
 and **every package** added, so installing needs no internet. The installer screens still say
 Fedora. Or build it yourself:
@@ -213,6 +222,7 @@ Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
 ├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle + package repo -> out/*.iso
 ├── install.sh            apply the setup to an existing Fedora 44
 ├── test-vm.sh            try the ISO in a VM
+├── src/make-torrent.py   .torrent of a release's files, with GitHub as a web seed
 ├── src/
 │   ├── shell-setup.ks.in kickstart template (@PACKAGES@ is filled in by pack.sh)
 │   ├── make-repo.sh      downloads every package into the on-ISO repo (runs in a container)
