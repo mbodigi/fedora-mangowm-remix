@@ -1,0 +1,8 @@
+#%PAM-1.0
+# Lock screen fingerprint: runs alongside the password check (./lock) and unlocks on a match.
+# One touch per run; Lock.qml starts it again after a no-match or timeout while the screen is locked.
+auth      required     pam_env.so
+auth      required     pam_fprintd.so    max-tries=1 timeout=60
+account   required     pam_unix.so
+password  required     pam_deny.so
+session   required     pam_permit.so

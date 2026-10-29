@@ -52,7 +52,8 @@ sys_items=(
     /etc/greetd/config.toml
     /etc/brave/policies/managed
     /etc/udev/rules.d/90-battery-threshold.rules
-    /etc/tuned/profiles/laptop-battery /etc/tuned/ppd.conf
+    /etc/tuned/profiles/laptop-battery /etc/tuned/profiles/laptop-battery-performance /etc/tuned/ppd.conf
+    /etc/scx_loader/config.toml /etc/kernel/install.d/50-boot-config.install
     /etc/dnf/dnf.conf
     "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:errornointernet:quickshell.repo"
     /etc/yum.repos.d/brave-browser.repo /etc/yum.repos.d/librewolf.repo
@@ -61,6 +62,7 @@ for p in "${sys_items[@]}"; do
     mkdir -p "$S/root$(dirname "$p")"
     cp -a "$p" "$S/root$p"
 done
+find "$S/root" \( -name '*.bak*' -o -name '*.backup*' \) -delete
 mkdir -p "$S/root/usr/local/bin"
 cp -a "$H"/.local/bin/{shot,mango-cycle} src/shell-user-setup src/shell-firstlogin "$S/root/usr/local/bin/"
 chmod 755 "$S/root/usr/local/bin/"*

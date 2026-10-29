@@ -1286,6 +1286,7 @@ popt
 ppp
 prefixdevname
 procps-ng
+protobuf
 protobuf-c
 psacct
 psmisc
@@ -1337,7 +1338,6 @@ python3-kickstart
 python3-langtable
 python3-libcomps
 python3-libdnf
-python3-libdnf5
 python3-libmount
 python3-libreport
 python3-libs
@@ -1544,6 +1544,8 @@ satyr
 sbctl
 scenefx
 scrub
+scx-scheds
+scx-tools
 sdbus-cpp
 sdl2-compat
 SDL2_image
@@ -1618,6 +1620,7 @@ systemd-networkd
 systemd-oomd-defaults
 systemd-pam
 systemd-resolved
+systemd-rpm-macros
 systemd-shared
 systemd-sysusers
 systemd-udev

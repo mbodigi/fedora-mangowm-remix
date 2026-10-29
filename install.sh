@@ -54,6 +54,12 @@ restorecon -RF /etc /usr/local /usr/share/shell-setup /usr/share/librewolf /var/
 # login screen: our greeter (and no other display manager, in case one got installed)
 for dm in gdm sddm lightdm lxdm; do systemctl disable "$dm" 2>/dev/null || true; done
 systemctl enable greetd
+
+# sched_ext scheduler (scx_lavd --autopower, see /etc/scx_loader/config.toml): follows the power profile.
+# It needs /boot/config-<version>; /etc/kernel/install.d/50-boot-config.install copies it for new
+# kernels, this does it for the ones already installed (GRUB installs have it already).
+for k in /usr/lib/modules/*/config; do v=$(basename "$(dirname "$k")"); [ -e "/boot/config-$v" ] || cp "$k" "/boot/config-$v"; done
+systemctl enable scx_loader
 systemctl set-default graphical.target
 
 /usr/local/bin/shell-user-setup "$user"

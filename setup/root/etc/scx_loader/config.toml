@@ -1,0 +1,8 @@
+# sched_ext scheduler started at boot by scx_loader.service.
+# scx_lavd --autopower follows the active power profile: performance mode on AC (tuned
+# throughput-performance), powersave with core compaction on battery (laptop-battery).
+default_sched = "scx_lavd"
+default_mode = "Auto"
+
+[scheds.scx_lavd]
+auto_mode = ["--autopower"]

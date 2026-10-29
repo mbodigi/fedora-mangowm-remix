@@ -13,6 +13,9 @@ Scope {
 
     property string error: ""
     readonly property var flow: agent.flow
+    // PAM is waiting for a finger (pam_fprintd, see /etc/pam.d/polkit-1): show only the fingerprint,
+    // the password box appears once that step fails or times out
+    readonly property bool fingerprintWait: flow !== null && !flow.isResponseRequired && !flow.isCompleted
 
     PolkitAgent { id: agent }
 
@@ -25,6 +28,7 @@ Scope {
         }
         function onIsResponseRequiredChanged() {
             if (root.flow.isResponseRequired) input.forceActiveFocus();
+            else fingerprint.forceActiveFocus();
         }
     }
 
@@ -50,7 +54,7 @@ Scope {
         WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
         WlrLayershell.namespace: "shell-polkit"
 
-        onVisibleChanged: if (visible) { root.error = ""; input.text = ""; input.forceActiveFocus(); }
+        onVisibleChanged: if (visible) { root.error = ""; input.text = ""; (root.fingerprintWait ? fingerprint : input).forceActiveFocus(); }
 
         Rectangle {
             anchors.centerIn: parent
@@ -89,7 +93,24 @@ Scope {
                     color: Theme.textMuted
                 }
 
+                Item {
+                    id: fingerprint
+                    visible: root.fingerprintWait
+                    width: parent.width
+                    height: 72
+                    Keys.onEscapePressed: root.cancel()
+
+                    // red while the last touch didn't match
+                    Icon {
+                        anchors.centerIn: parent
+                        name: "fingerprint"
+                        font.pixelSize: 56
+                        color: root.flow?.supplementaryIsError ? Theme.error : Theme.text
+                    }
+                }
+
                 Rectangle {
+                    visible: !root.fingerprintWait
                     width: parent.width
                     height: 46
                     radius: 23
@@ -122,7 +143,8 @@ Scope {
                 Label {
                     visible: text !== ""
                     width: parent.width
-                    text: root.error || (root.flow?.supplementaryMessage ?? "")
+                    // the fingerprint's own messages ("Place your finger…") are shown as the icon instead
+                    text: root.error || (root.fingerprintWait ? "" : (root.flow?.supplementaryMessage ?? ""))
                     color: root.error || root.flow?.supplementaryIsError ? Theme.error : Theme.textMuted
                     wrapMode: Text.Wrap
                 }
@@ -132,6 +154,7 @@ Scope {
                     spacing: 8
                     Chip { onClicked: root.cancel(); Label { text: "Cancel" } }
                     Chip {
+                        visible: !root.fingerprintWait
                         highlighted: true
                         onClicked: root.submit()
                         Label { text: "Authenticate"; color: Theme.textOnPrimary }

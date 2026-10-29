@@ -1,0 +1,12 @@
+#!/bin/sh
+# Kernels live on the EFI partition here (BOOT_ROOT=/boot/efi), so /boot has no config-<version>.
+# libbpf reads /boot/config-<version> to load sched_ext schedulers (scx_lavd via scx_loader):
+# copy the one every kernel package ships in /lib/modules/<version>/config (a copy, not a link:
+# scx_loader.service has ProtectKernelModules=true, which hides /lib/modules from it).
+COMMAND="$1"
+KERNEL_VERSION="$2"
+case "$COMMAND" in
+    add)    [ -e "/lib/modules/$KERNEL_VERSION/config" ] && cp -f "/lib/modules/$KERNEL_VERSION/config" "/boot/config-$KERNEL_VERSION" ;;
+    remove) rm -f "/boot/config-$KERNEL_VERSION" ;;
+esac
+exit 0
