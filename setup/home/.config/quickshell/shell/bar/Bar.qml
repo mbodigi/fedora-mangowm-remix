@@ -1,4 +1,4 @@
-// Top bar: tags + window title on the left; media, tray, coffee, stats, battery, clock on the right.
+// Top bar: tags + window title on the left; media, tray, coffee, stats (CPU, RAM, network), battery, clock on the right.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -62,6 +62,13 @@ PanelWindow {
             visible: Settings.get("showRam")
             Icon { name: "memory_alt" }
             Label { text: SysStats.memUsedGiB.toFixed(1) + "G" }
+        }
+
+        Chip {
+            flat: bar.mac
+            visible: Settings.get("showNet")
+            Icon { name: "swap_vert" }
+            Label { text: "↓" + SysStats.mbps(SysStats.rxRate) + " ↑" + SysStats.mbps(SysStats.txRate) + " Mbps" }
         }
 
         NotifButton { flat: bar.mac }

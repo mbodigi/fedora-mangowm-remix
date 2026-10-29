@@ -20,8 +20,10 @@ pkgs=$(grep -vE "$skip" setup/packages.txt | tr '\n' ' ')
 echo "Installing the Fedora MangoWM Remix setup for $me…"
 sudo bash -euo pipefail -s "$PWD" "$me" "$pkgs" <<'EOF'
 R=$1; user=$2; pkgs=$3
-# many downloads at once (dnf's default is 3) and the fastest mirrors: ~2.5 GB goes much faster
-dnf() { command dnf --setopt=max_parallel_downloads=15 --setopt=fastestmirror=True "$@"; }
+# many downloads at once (dnf's default is 3) and the fastest mirrors: ~2.5 GB goes much faster.
+# No weak deps: packages.txt already lists the recommended packages the setup really uses; dnf's
+# default would add optional extras on top (SciPy, TeX Live, Docker…) that it doesn't.
+dnf() { command dnf --setopt=max_parallel_downloads=15 --setopt=fastestmirror=True --setopt=install_weak_deps=False "$@"; }
 
 # repos: RPM Fusion and terra from their release packages, the rest are plain .repo files
 dnf -y install \

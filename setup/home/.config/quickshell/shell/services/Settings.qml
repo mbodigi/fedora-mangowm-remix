@@ -11,7 +11,7 @@ Singleton {
         lockBattery: 5, screenOffBattery: 6, sleepBattery: 15,   // minutes, 0 = never
         lockAC: 10, screenOffAC: 11, sleepAC: 0,
         clock24h: false,
-        showCpu: true, showRam: true, showMedia: true,
+        showCpu: true, showRam: true, showNet: true, showMedia: true,
         scheme: "scheme-monochrome",
         barStyle: "pills",  // pills | mac
         dockPins: []        // desktop entry ids pinned to the dock, in order
