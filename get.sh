@@ -12,6 +12,12 @@ REF=${REF:-main}
 . /etc/os-release
 [ "${ID:-}" = fedora ] && [ "${VERSION_ID:-}" = 44 ] || { echo "This setup is for Fedora 44 (found: ${PRETTY_NAME:-unknown})." >&2; exit 1; }
 
+# a Minimal Fedora has no tar; it's needed to unpack the download (asks for your password)
+if ! command -v tar >/dev/null; then
+    echo "Installing tar (needed to unpack the download)…"
+    sudo dnf -y install tar < /dev/tty
+fi
+
 dir=$(mktemp -d)
 trap 'rm -rf "$dir"' EXIT
 echo "Downloading $REPO ($REF)…"
