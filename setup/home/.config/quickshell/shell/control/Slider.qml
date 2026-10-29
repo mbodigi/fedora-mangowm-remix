@@ -1,4 +1,5 @@
 // Horizontal slider with a leading icon. `value` is 0-1; `moved(v)` fires while dragging or clicking.
+// expandable: a small arrow at the end shows that clicking the icon opens a drop-down (expanded = open).
 import QtQuick
 import "../services"
 import "../bar"
@@ -8,8 +9,11 @@ Item {
 
     property real value: 0
     property string icon
+    property bool expandable: false
+    property bool expanded: false
     signal moved(real v)
     signal iconClicked()
+    signal iconRightClicked()
 
     implicitHeight: 40
 
@@ -22,6 +26,23 @@ Item {
         MouseArea {
             anchors.fill: parent
             anchors.margins: -6
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mouse => mouse.button === Qt.RightButton ? root.iconRightClicked() : root.iconClicked()
+        }
+    }
+
+    Icon {
+        id: chevron
+        visible: root.expandable
+        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+        name: root.expanded ? "expand_less" : "expand_more"
+        color: Theme.textMuted
+        font.pixelSize: 18
+
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -6
             cursorShape: Qt.PointingHandCursor
             onClicked: root.iconClicked()
         }
@@ -29,7 +50,8 @@ Item {
 
     Rectangle {
         id: track
-        anchors { left: glyph.right; right: parent.right; leftMargin: 14; verticalCenter: parent.verticalCenter }
+        anchors { left: glyph.right; right: root.expandable ? chevron.left : parent.right; leftMargin: 14
+                  rightMargin: root.expandable ? 10 : 0; verticalCenter: parent.verticalCenter }
         height: 10
         radius: 5
         color: Theme.surfaceHigh

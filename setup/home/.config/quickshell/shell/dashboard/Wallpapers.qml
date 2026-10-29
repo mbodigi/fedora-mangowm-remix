@@ -1,6 +1,6 @@
 // Wallpapers tab.
-//  Mine:      images in ~/Pictures (and subfolders). Click to set.
-//  Wallhaven: search wallhaven.cc (SFW only). Click to download into ~/Pictures and set; right click to just save.
+//  Mine:      images in ~/.local/share/wallpapers (and subfolders). Click to set.
+//  Wallhaven: search wallhaven.cc (SFW only). Click to download into ~/.local/share/wallpapers and set; right click to just save.
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -13,7 +13,7 @@ ColumnLayout {
 
     property string source: "mine"      // mine | wallhaven
     property var mine: []
-    readonly property string folder: Quickshell.env("HOME") + "/Pictures"
+    readonly property string folder: Quickshell.env("HOME") + "/.local/share/wallpapers"   // hidden, out of ~/Pictures
 
     // wallhaven state
     property var results: []
@@ -55,7 +55,7 @@ ColumnLayout {
         d[item.id] = true;
         downloading = d;
         const proc = downloader.createObject(root, { dest: dest, itemId: item.id, apply: apply });
-        proc.command = ["curl", "-sfL", "--max-time", "120", "-o", dest, item.path];
+        proc.command = ["curl", "-sfL", "--max-time", "120", "--create-dirs", "-o", dest, item.path];
         proc.running = true;
     }
 
@@ -261,7 +261,7 @@ ColumnLayout {
     Label {
         Layout.alignment: Qt.AlignHCenter
         text: root.source === "mine"
-            ? "Click to set · files in ~/Pictures"
+            ? "Click to set · files in ~/.local/share/wallpapers"
             : root.loading ? "Loading…" : "Click: download + set · Right click: save only · scroll for more"
         color: Theme.outline
         font.pixelSize: 11

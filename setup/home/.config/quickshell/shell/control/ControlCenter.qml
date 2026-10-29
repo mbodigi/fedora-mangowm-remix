@@ -1,4 +1,4 @@
-// Control center: volume/brightness sliders, quick toggles, Wi-Fi and Bluetooth lists. (Coffee lives on the bar only.)
+// Control center: volume/brightness sliders, quick toggles, Wi-Fi, Bluetooth and sound-device lists. (Coffee lives on the bar only.)
 // Toggle with: qs -c shell ipc call control toggle
 import QtQuick
 import QtQuick.Layouts
@@ -15,7 +15,7 @@ PanelWindow {
     id: root
 
     readonly property bool open: Panels.control
-    property string section: ""     // "", "wifi" or "bluetooth"
+    property string section: ""     // "", "wifi", "bluetooth" or "sound"
     property var askPassword: null  // Wi-Fi network waiting for a password
 
     readonly property var bt: Bluetooth.defaultAdapter
@@ -37,11 +37,22 @@ PanelWindow {
             askPassword = null;
         }
         Net.scan(open && section === "wifi");
+        setDiscovering(open && section === "bluetooth");
     }
     onSectionChanged: {
         Net.scan(open && section === "wifi");
-        if (bt) bt.discovering = open && section === "bluetooth";
+        setDiscovering(open && section === "bluetooth");
     }
+
+    // Bluetooth scans only briefly: this laptop's Intel card shares one radio between Wi-Fi and
+    // Bluetooth, and a scan that keeps running breaks up connected audio devices (and makes new
+    // connections fail). Scan for 15 s when the list opens; stop before connecting or pairing.
+    function setDiscovering(on) {
+        if (!bt) return;
+        bt.discovering = on;
+        if (on) btScanStop.restart(); else btScanStop.stop();
+    }
+    Timer { id: btScanStop; interval: 15000; onTriggered: if (root.bt) root.bt.discovering = false }
 
     IpcHandler {
         target: "control"
@@ -76,13 +87,52 @@ PanelWindow {
             spacing: 10
 
             // sliders
+            // volume: click the speaker for the output/input drop-down, right-click it to mute
             Slider {
                 Layout.fillWidth: true
                 icon: Audio.muted ? "volume_off" : "volume_up"
                 value: Audio.muted ? 0 : Audio.volume
+                expandable: true
+                expanded: root.section === "sound"
                 onMoved: v => Audio.setVolume(v)
-                onIconClicked: Audio.toggleMute()
+                onIconClicked: root.section = root.section === "sound" ? "" : "sound"
+                onIconRightClicked: Audio.toggleMute()
             }
+            // sound drop-down: pick the output (speakers, headphones, HDMI, Bluetooth) and the input
+            ColumnLayout {
+                Layout.fillWidth: true
+                visible: root.section === "sound"
+                spacing: 4
+
+                Label { text: "Output"; color: Theme.textMuted; font.pixelSize: 12 }
+                Repeater {
+                    model: Audio.outputs
+                    ListRow {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        icon: /bluez/i.test(modelData.name) ? "headphones" : /hdmi|displayport/i.test(modelData.name) ? "tv" : "speaker"
+                        title: Audio.label(modelData)
+                        detail: modelData === Audio.sink ? "In use" : ""
+                        highlighted: modelData === Audio.sink
+                        onClicked: Audio.setOutput(modelData)
+                    }
+                }
+
+                Label { text: "Input"; color: Theme.textMuted; font.pixelSize: 12; Layout.topMargin: 6 }
+                Repeater {
+                    model: Audio.inputs
+                    ListRow {
+                        required property var modelData
+                        Layout.fillWidth: true
+                        icon: "mic"
+                        title: Audio.label(modelData)
+                        detail: modelData === Audio.source ? "In use" : ""
+                        highlighted: modelData === Audio.source
+                        onClicked: Audio.setInput(modelData)
+                    }
+                }
+            }
+
             Slider {
                 Layout.fillWidth: true
                 icon: "brightness_6"
@@ -256,9 +306,15 @@ PanelWindow {
                               : modelData.paired ? "Paired" : "Available"
                         highlighted: modelData.connected
                         onClicked: {
+                            root.setDiscovering(false);
                             if (modelData.connected) modelData.disconnect();
                             else if (modelData.paired) modelData.connect();
                             else { modelData.trusted = true; modelData.pair(); }
+                        }
+                        // a newly paired device connects right away
+                        Connections {
+                            target: modelData
+                            function onPairedChanged() { if (modelData.paired && !modelData.connected) modelData.connect(); }
                         }
                     }
                 }
