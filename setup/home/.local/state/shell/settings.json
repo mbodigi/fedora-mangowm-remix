@@ -8,6 +8,7 @@
   "clock24h": false,
   "showCpu": true,
   "showRam": true,
+  "showNet": true,
   "showMedia": true,
   "scheme": "scheme-monochrome",
   "barStyle": "mac",
@@ -15,6 +16,7 @@
     "librewolf",
     "brave-browser",
     "thunar",
-    "brave-agimnkijcaahngcdmfeangaknmldooml-Default"
+    "brave-agimnkijcaahngcdmfeangaknmldooml-Default",
+    "com.mitchellh.ghostty"
   ]
 }
