@@ -81,6 +81,7 @@ braille-printer-app
 brave-browser
 brave-keyring
 brcmfmac-firmware
+breeze-cursor-theme
 breeze-icon-theme
 brlapi
 btrfs-progs
