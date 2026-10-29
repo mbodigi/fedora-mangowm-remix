@@ -3,6 +3,9 @@ font-size = 12
 
 # Window Configuration
 window-decoration = false
+
+# Always open new windows in home, not wherever the launcher was
+working-directory = home
 window-padding-x = 12
 window-padding-y = 12
 background-opacity = 1.0
