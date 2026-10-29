@@ -5,7 +5,7 @@
 #   setup/greeter-cache/ the login screen's colors
 #   setup/packages.txt   every installed package name (checked to be installable from the repos)
 #   private/             wallpapers (other people's art, so not committed; see .gitignore)
-# Then runs ./pack.sh to make build/ (kickstart + bundle) for build-iso.sh and install.sh.
+# install.sh (or get.sh) installs it on a stock Fedora 44.
 # Read-only on the system: everything is copied into this folder.
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -103,4 +103,4 @@ if grep -rIlE 'BEGIN (OPENSSH|RSA|EC) PRIVATE|psk=|password=|Login Data|cookies.
     echo "!! possible secrets above, stopping" >&2; exit 1
 fi
 
-./pack.sh
+echo "snapshot updated: $(wc -l < "$S/packages.txt") packages; review with git diff"

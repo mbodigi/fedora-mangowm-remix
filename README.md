@@ -1,30 +1,54 @@
 # Fedora MangoWM Remix
 
-A complete, reproducible Fedora 44 desktop: **MangoWM** (a Wayland compositor) with a
-**hand-written Quickshell shell**, a Waybar dock, a custom login screen, systemd-boot,
-and a uniform monochrome theme with JetBrains Mono everywhere.
+A complete Fedora 44 desktop: **MangoWM** (a Wayland compositor) with a **hand-written Quickshell
+shell**, a dock with app pinning, a custom login screen, and a uniform monochrome theme with
+JetBrains Mono everywhere.
 
 ![The desktop: bar, dock, app launcher, dashboard, control center, shortcut cheatsheet and fastfetch](docs/demo.gif)
 
 <sub>Shown with Fedora 44's default wallpaper (CC BY-SA 4.0, Fedora Design Team). The theme colors are generated from whatever wallpaper you pick.</sub>
 
-This repo can rebuild that desktop two ways:
+## Install
 
-1. **An install ISO** (`build-iso.sh`): boot it, click through Fedora's normal graphical
-   installer, and you get this exact desktop on first login.
-2. **A script for an existing Fedora 44** (`install.sh`): turns a stock install into this desktop.
+On a **fresh Fedora 44** (any edition: Workstation, KDE, Everything… from
+[fedoraproject.org](https://fedoraproject.org)), as your normal user:
 
-No personal data is included: no browser profiles, logins, history, passwords, Wi-Fi keys,
-SSH keys or files from the home folder. Only configuration.
+```bash
+curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
+```
 
----
+Then reboot, pick the **Mango** session on the new login screen, and log in.
+
+- It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages.
+- It **removes nothing**: Fedora's bootloader, your edition and its desktop stay. Only the login
+  screen switches to ours (`sudo systemctl disable greetd && sudo systemctl enable gdm` switches back).
+- Want to read it first? `get.sh` just downloads this repo and runs [`install.sh`](install.sh),
+  which is short. Or clone the repo and run `./install.sh` yourself.
+- A specific version: `curl -fsSL …/get.sh | REF=<tag or branch> bash`.
+
+### What the installer does
+
+1. Adds the repos: RPM Fusion free/nonfree, terra (MangoWM, Ghostty, VSCodium), the official
+   [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell), Brave and LibreWolf.
+2. Swaps Fedora's `ffmpeg-free` for RPM Fusion's full `ffmpeg`, then installs the package list
+   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's bootloader tooling
+   (`sdubby` would replace `grubby`, which Fedora's GRUB needs), its Fedora edition identity, kernels
+   (Fedora's own are used) and installer leftovers.
+3. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
+   the login screen, browser policies, LibreWolf defaults, battery rule, tuned profile, helper scripts.
+4. Creates the `greeter` account the login screen runs as, and enables greetd.
+5. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
+6. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
+
+No wallpapers are included (they're other people's art); pick one with `Super + Y`. The dashboard can
+search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`.
 
 ## What you get
 
 | Part | What it is |
 |---|---|
 | **Window manager** | [MangoWM](https://github.com/mangowm/mango) 0.18 (from the terra repo), tiling + floating, scenefx effects |
-| **Shell** | Our own [Quickshell](https://quickshell.org) shell (`setup/home/.config/quickshell/shell`): bar, app launcher, clipboard history, notifications + center, control center, OSD, lock screen, dashboard with wallpapers, power menu, cheatsheet, task manager, settings panel, polkit password dialog, battery warnings, Wi-Fi login (captive portal) notification |
+| **Shell** | Our own [Quickshell](https://quickshell.org) shell (`setup/home/.config/quickshell/shell`): bar, app launcher, clipboard history, notifications + center, control center (with a sound output/input drop-down), OSD, lock screen, dashboard with wallpapers, power menu, cheatsheet, task manager, settings panel, polkit password dialog, battery warnings, Wi-Fi login (captive portal) notification |
 | **Dock** | Part of the shell (`dock/`): left edge, intelligent auto-hide, one icon per app with a running indicator. Click focuses / minimizes / restores, middle click closes, **right click → Pin to dock / Unpin, New window, Close** |
 | **Login screen** | A Quickshell greeter run by greetd (`setup/root/usr/local/share/shell-greeter`) |
 | **Theme** | Colors generated from the wallpaper by matugen (monochrome scheme), applied to the shell, GTK 3/4, Qt 5/6 and Mango; accents are fixed soft grays (#505050 / #8a8a8a) |
@@ -32,9 +56,8 @@ SSH keys or files from the home folder. Only configuration.
 | **Browsers** | LibreWolf (default browser, follows the GTK theme, hardware video decoding, compact UI); Brave for web apps, with a policy file that turns off rewards, wallet, VPN, AI, news, telemetry and promos |
 | **Video** | Celluloid + mpv with Intel VA-API hardware decoding, full ffmpeg from RPM Fusion |
 | **Laptop** | tuned with a custom `laptop-battery` profile; ThinkPad battery charge kept between 75 and 80% (udev rule; harmless on other machines) |
-| **Boot** | systemd-boot on UEFI (GRUB is used automatically where systemd-boot can't work, see below) |
 
-The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,800 packages).
+The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,800 packages; a few machine-specific ones are skipped on install).
 
 ### Keyboard shortcuts (the most used ones)
 
@@ -59,124 +82,6 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 | `Ctrl + Alt + Delete` | Task manager |
 | `Super + Shift + P` | Pin / unpin the focused app to the dock |
 
----
-
-## Option 1: install from the ISO
-
-### Download it
-
-The ISO is on the [Releases page](https://github.com/mbodigi/fedora-mangowm-remix/releases):
-`fedora-mangowm-remix-VERSION-x86_64.iso` (about 1.2 GB), with its `.sha256`. Check it before
-writing it to a USB stick:
-
-```bash
-sha256sum -c fedora-mangowm-remix-VERSION-x86_64.iso.sha256
-```
-
-It's Fedora's official net-install image (for its installer) with this repo's kickstart and
-configs added, so the installer screens still say Fedora. **The packages (about 2.5 GB) download
-during the install**, so it needs internet. For an install without internet, build the offline
-variant yourself (below). Or build either one yourself:
-
-### Build the ISO
-
-Requirements: Fedora with `podman` and `curl`, about 3 GB of free disk space (12 GB for the offline
-variant), and an internet connection.
-
-```bash
-git clone https://github.com/mbodigi/fedora-mangowm-remix.git
-cd fedora-mangowm-remix
-./build-iso.sh
-```
-
-What `build-iso.sh` does:
-
-1. Runs `pack.sh`, which turns `setup/` into `build/shell-setup.ks` (the installer instructions)
-   and `build/shell-bundle.tar.gz` (the configs).
-2. Downloads Fedora's **official** net-install ISO (`Fedora-Everything-netinst-x86_64-44-1.7.iso`, 1.2 GB)
-   and checks it against Fedora's **GPG-signed checksum** file. It stops if the check fails.
-3. Builds a small container image with Fedora's ISO tools (lorax, pykickstart, xorriso), once.
-4. Offline variant only (`OFFLINE=1`): runs `src/make-repo.sh` in a clean Fedora container with the same repos as the installed system:
-   downloads every package in `setup/packages.txt` (plus the GRUB/shim bootloader packages for
-   Secure Boot and BIOS machines) with all dependencies into `download/rpms/`, and makes
-   `build/shellrepo/` a package repo with Fedora's package groups.
-5. Validates the kickstart with `ksvalidator`.
-6. Runs `mkksiso` to add the kickstart and the bundle (plus the package repo, offline) to the ISO,
-   and points all boot menus (BIOS, UEFI and the UEFI boot image) at them (`inst.ks=…`, and offline
-   `inst.repo=hd:LABEL=…:/shellrepo`). This step needs root (it uses a loop device), so a password
-   prompt appears.
-
-Result: `out/fedora-mangowm-remix-VERSION-x86_64-personal.iso` (about 1.2 GB; `VERSION` is in the
-file of that name, e.g. `44.2`). With `OFFLINE=1 ./build-iso.sh` you get
-`…-x86_64-offline-personal.iso` instead (about 3.8 GB, every package on it, no internet needed to install). With `PUBLIC=1 ./build-iso.sh` it leaves out the local wallpapers
-(`private/`) and writes `out/fedora-mangowm-remix-VERSION-x86_64.iso` instead; that's the one
-published on the Releases page. `./release.sh` then prepares it for GitHub (one file; an offline ISO, which is
-over GitHub's 2 GB limit, in parts) and makes its checksum in `out/release/`, for a release tagged `fedora-mangowm-remix-VERSION`.
-
-### Write it to a USB stick
-
-Use a 2 GB or bigger stick (8 GB for the offline variant), with **Fedora Media Writer** or `dd` (this erases the stick; double-check the device name with `lsblk`):
-
-```bash
-sudo dd if=fedora-mangowm-remix-VERSION-x86_64.iso of=/dev/sdX bs=4M status=progress oflag=sync
-```
-
-### Install
-
-1. Boot the USB stick (it works on UEFI and old BIOS PCs, with or without Secure Boot).
-2. Pick **Install Fedora 44** in the boot menu.
-3. In the installer fill in only these screens:
-   - **Installation Destination**: pick the disk (Automatic partitioning is fine)
-   - **Network & Host Name**: a cable connects by itself; for Wi-Fi, pick your network here
-     (the packages download during the install; offline variant: optional)
-   - **Time & Date**: your time zone
-   - **User Creation**: your username and password; tick **Make this user administrator**
-4. **Do not change Software Selection.** It must say *Custom software selected*. Choosing an
-   environment there replaces this setup's package list.
-5. Click **Begin Installation**. The packages download from the internet (about 2.5 GB), then
-   everything is set up. The offline variant installs from the USB stick instead (about 17 minutes
-   in a test VM).
-6. Reboot: systemd-boot, then the login screen, then the desktop.
-
-### What the installer does
-
-- **Packages**: downloaded during the install from the same repos the installed system uses (the
-  offline variant installs them from `/shellrepo` on the ISO): Fedora + updates, RPM Fusion free/nonfree, terra (MangoWM, Ghostty,
-  VSCodium), the official [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell),
-  Brave, LibreWolf and Cisco OpenH264.
-- **Network**: DHCP on a connected cable; Wi-Fi can be set up in the installer, and that
-  connection is copied to the new system. NetworkManager's connectivity
-  check is installed, so the shell notices Wi-Fi login pages.
-- **Bootloader**, picked per machine in the kickstart `%pre`:
-  - UEFI with Secure Boot **off**: **systemd-boot**
-  - UEFI with Secure Boot **on**: GRUB through Fedora's signed shim (systemd-boot from Fedora isn't signed)
-  - Old BIOS: GRUB
-- **After the packages** (`%post`): copies the system files from `setup/root` (as root, without
-  touching existing folders like `/` or `/etc`), creates the `greeter` account the login screen
-  runs as, enables the greetd login screen, and gives every user created in the installer the configs from `setup/home`
-  (via `shell-user-setup`, which fills in the user's real home folder).
-- **First login**: `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons,
-  fonts, Celluloid options), once.
-
-The ISO's own boot menu is GRUB. That's Fedora's install media, and it's what lets the same
-ISO boot on BIOS, UEFI and Secure Boot machines. It doesn't affect the installed system.
-
----
-
-## Option 2: set up an existing Fedora 44
-
-On a fresh Fedora 44 (any edition or spin), as your normal user:
-
-```bash
-git clone https://github.com/mbodigi/fedora-mangowm-remix.git
-cd fedora-mangowm-remix
-./install.sh
-```
-
-It asks for your password once, adds the same repos, installs the package list, copies the
-system files and your user's configs, switches the login screen to greetd, and tells you to reboot.
-
----
 
 ## Keeping the repo up to date (on the original machine)
 
@@ -189,65 +94,28 @@ git commit -am "Update setup" && git push
 ```
 
 `collect.sh` only reads from the system. It copies the configs into `setup/`, rewrites the home
-folder path as `@HOME@`, moves helper scripts to `/usr/local/bin`, records every installed
-package (checking each one is still available from the repos), and refuses to continue if it
-finds anything that looks like a key or password.
-
-## Testing in a virtual machine
-
-`test-vm.sh` uses libvirt's user session (shows up in virt-manager as *QEMU/KVM User session*):
-
-| Command | What it does |
-|---|---|
-| `./test-vm.sh try` | Boots the ISO in a UEFI VM up to the installer; nothing is installed |
-| `./test-vm.sh install` | Fully automatic test install on a 30 GB virtual disk with **no network** (user `test`, password `test`) |
-| `./test-vm.sh boot` | Starts the installed VM |
-| `./test-vm.sh screenshot` | Saves a screenshot of the VM |
-| `./test-vm.sh delete` | Removes the VM and its disk |
-
-Needs `virt-install`, `qemu-kvm` and `edk2-ovmf` (UEFI firmware).
-
----
+folder path as `@HOME@`, moves helper scripts to `/usr/local/bin`, records every installed package
+(checking each one is still available from the repos), and refuses to continue if it finds anything
+that looks like a key or password.
 
 ## Repo layout
 
 ```
 .
+├── get.sh                the curl one-liner: downloads this repo and runs install.sh
+├── install.sh            installs the setup on a stock Fedora 44
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
-├── pack.sh               setup/ -> build/ (kickstart + bundle)
-├── VERSION               release version (Fedora release . build), used in every file name
-├── release.sh            prepare the public ISO for GitHub (+ checksum)
-├── build-iso.sh          official Fedora netinst ISO + kickstart + bundle + package repo -> out/*.iso
-├── install.sh            apply the setup to an existing Fedora 44
-├── test-vm.sh            try the ISO in a VM
 ├── src/
-│   ├── shell-setup.ks.in kickstart template (@PACKAGES@ is filled in by pack.sh)
-│   ├── repos-online.ks   the repos a net-install downloads from (default)
-│   ├── repos-offline.ks  … or the repo on the ISO (OFFLINE=1)
-│   ├── make-repo.sh      offline: downloads every package into the on-ISO repo (runs in a container)
-│   ├── offline-extra-packages.txt  bootloaders the installer may need (GRUB, shim)
-│   ├── system/           sysusers.d / tmpfiles.d for the login screen's account
 │   ├── shell-user-setup  copies the configs to a user, fills in @HOME@
-│   └── shell-firstlogin  dconf settings at first login
-└── setup/                the snapshot (generated by collect.sh, committed)
-    ├── packages.txt      every package to install
-    ├── root/             system files, copied to /
-    ├── home/             user configs, copied to each user's home
-    └── greeter-cache/    login screen colors
+│   ├── shell-firstlogin  dconf settings at first login
+│   └── system/           sysusers.d / tmpfiles.d for the login screen's account
+├── setup/                the snapshot (generated by collect.sh, committed)
+│   ├── packages.txt      every package to install
+│   ├── root/             system files, copied to /
+│   ├── home/             user configs, copied to your home
+│   └── greeter-cache/    login screen colors
+└── docs/                 demo GIF, checklist
 ```
-
-Not in the repo (see `.gitignore`): `build/`, `download/`, `out/`, `test/`, and `private/`,
-which holds the wallpapers. They're other people's art from [wallhaven](https://wallhaven.cc),
-so they're only kept on the original machine. Installs built from a fresh clone start without a
-wallpaper: pick one with `Super + Y` (the dashboard can search and download from wallhaven; wallpapers live in the hidden
-`~/.local/share/wallpapers/`),
-and the whole theme is regenerated from it.
-
-## Not carried over
-
-- Browser profiles (bookmarks, logins, extensions' data). Brave's new-tab background color and
-  installed web apps live in the profile, so they need to be set once again.
-- Personal files, SSH/GPG keys, Wi-Fi passwords, the clipboard history.
 
 ## Credits
 
@@ -256,4 +124,4 @@ and the whole theme is regenerated from it.
   [greetd](https://kl.wtf/projects/greetd)
 - [Material Symbols](https://fonts.google.com/icons) font (Apache License 2.0), bundled for the shell's icons
 - Demo GIF wallpaper: Fedora 44 default background by the Fedora Design Team, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-- Built on [Fedora](https://fedoraproject.org) 44
+- Built on [Fedora](https://fedoraproject.org) 44. This is an unofficial remix, not a Fedora Project release.
