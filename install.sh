@@ -3,7 +3,9 @@
 #   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
 # or from a clone of this repo: ./install.sh
 # Asks for your password once (sudo), needs internet (~2.5 GB of packages), and removes nothing:
-# Fedora's own bootloader, edition and desktop stay; the MangoWM login session is added next to them.
+# Fedora's edition and desktop stay; the MangoWM login session is added next to them. Where it's
+# safe (UEFI, Secure Boot off, no Windows), systemd-boot becomes the bootloader, with GRUB kept as a
+# fallback boot entry; SDBOOT=0 keeps GRUB.
 set -euo pipefail
 cd "$(dirname "$0")"
 [ -f setup/packages.txt ] || { echo "setup/ is missing" >&2; exit 1; }
@@ -18,7 +20,7 @@ skip='^(sdubby|systemd-boot-unsigned|fedora-release.*|kernel.*|anaconda.*|librep
 pkgs=$(grep -vE "$skip" setup/packages.txt | tr '\n' ' ')
 
 echo "Installing the Fedora MangoWM Remix setup for $me…"
-sudo bash -euo pipefail -s "$PWD" "$me" "$pkgs" <<'EOF'
+sudo SDBOOT="${SDBOOT:-1}" bash -euo pipefail -s "$PWD" "$me" "$pkgs" <<'EOF'
 R=$1; user=$2; pkgs=$3
 # many downloads at once (dnf's default is 3) and the fastest mirrors: ~2.5 GB goes much faster.
 # No weak deps: packages.txt already lists the recommended packages the setup really uses; dnf's
@@ -55,6 +57,35 @@ systemctl enable greetd
 systemctl set-default graphical.target
 
 /usr/local/bin/shell-user-setup "$user"
+
+# Bootloader: systemd-boot like the original machine, where that's safe. GRUB stays installed as a
+# fallback boot entry; systemd-boot just goes first in the firmware's boot order.
+# Kept on GRUB: BIOS machines, Secure Boot on (Fedora's systemd-boot isn't signed), Windows on the
+# EFI partition (GRUB is what lists it), too little space on the EFI partition, or SDBOOT=0.
+sdboot_ok() {
+    [ "$SDBOOT" != 0 ] || { echo "SDBOOT=0: keeping GRUB"; return 1; }
+    [ -d /sys/firmware/efi ] || { echo "BIOS machine: keeping GRUB"; return 1; }
+    sb=$(od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c 2>/dev/null | awk '{print $NF}')
+    [ "$sb" != 1 ] || { echo "Secure Boot is on: keeping GRUB (systemd-boot isn't signed)"; return 1; }
+    mountpoint -q /boot/efi || { echo "no EFI partition at /boot/efi: keeping GRUB"; return 1; }
+    [ ! -d /boot/efi/EFI/Microsoft ] || { echo "Windows found on the EFI partition: keeping GRUB"; return 1; }
+    free_mb=$(df -m --output=avail /boot/efi | tail -1)
+    [ "$free_mb" -ge 300 ] || { echo "only ${free_mb} MB free on the EFI partition: keeping GRUB"; return 1; }
+}
+if sdboot_ok; then
+    echo "Switching to systemd-boot…"
+    if rpm -q grubby >/dev/null; then dnf -y swap grubby sdubby; else dnf -y install sdubby; fi
+    dnf -y install systemd-boot-unsigned
+    # kernels go on the EFI partition as boot-loader entries; no rescue image (it doesn't fit there)
+    printf 'layout=bls\nBOOT_ROOT=/boot/efi\n' > /etc/kernel/install.conf
+    echo 'dracut_rescue_image="no"' > /etc/dracut.conf.d/90-no-rescue.conf
+    [ -s /etc/kernel/cmdline ] || sed -E 's/(^| )(BOOT_IMAGE|initrd)=[^ ]*//g; s/^ +//' /proc/cmdline > /etc/kernel/cmdline
+    bootctl install --esp-path=/boot/efi
+    for k in /usr/lib/modules/*/vmlinuz; do kernel-install add "$(basename "$(dirname "$k")")" "$k"; done
+    printf 'timeout 3\ndefault @saved\n' > /boot/efi/loader/loader.conf
+    n=$(ls /boot/efi/loader/entries/*.conf 2>/dev/null | wc -l)
+    [ "$n" -gt 0 ] && echo "systemd-boot installed with $n kernel entries (GRUB kept as a fallback boot entry)"
+fi
 EOF
 
 echo

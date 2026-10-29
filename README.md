@@ -20,8 +20,11 @@ curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/g
 Then reboot, pick the **Mango** session on the new login screen, and log in.
 
 - It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages.
-- It **removes nothing**: Fedora's bootloader, your edition and its desktop stay. Only the login
-  screen switches to ours (`sudo systemctl disable greetd && sudo systemctl enable gdm` switches back).
+- It **removes nothing**: your edition and its desktop stay. The login screen switches to ours
+  (`sudo systemctl disable greetd && sudo systemctl enable gdm` switches back).
+- **Bootloader:** where it's safe (UEFI, Secure Boot off, no Windows on the disk) it switches to
+  **systemd-boot**, like the original machine, and keeps GRUB as a fallback entry in your PC's boot
+  menu. Otherwise GRUB stays, with a message saying why. `… | SDBOOT=0 bash` keeps GRUB.
 - Want to read it first? `get.sh` just downloads this repo and runs [`install.sh`](install.sh),
   which is short. Or clone the repo and run `./install.sh` yourself.
 - A specific version: `curl -fsSL …/get.sh | REF=<tag or branch> bash`.
@@ -31,14 +34,15 @@ Then reboot, pick the **Mango** session on the new login screen, and log in.
 1. Adds the repos: RPM Fusion free/nonfree, terra (MangoWM, Ghostty, VSCodium), the official
    [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell), Brave and LibreWolf.
 2. Swaps Fedora's `ffmpeg-free` for RPM Fusion's full `ffmpeg`, then installs the package list
-   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's bootloader tooling
-   (`sdubby` would replace `grubby`, which Fedora's GRUB needs), its Fedora edition identity, kernels
+   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's Fedora edition identity, kernels
    (Fedora's own are used) and installer leftovers.
-3. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
+3. Switches to systemd-boot where it's safe (see above): sdubby in place of grubby, `bootctl install`,
+   kernels as boot entries on the EFI partition (without the rescue image, which doesn't fit there).
+4. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
    the login screen, browser policies, LibreWolf defaults, battery rule, tuned profile, helper scripts.
-4. Creates the `greeter` account the login screen runs as, and enables greetd.
-5. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
-6. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
+5. Creates the `greeter` account the login screen runs as, and enables greetd.
+6. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
+7. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
 
 No wallpapers are included (they're other people's art); pick one with `Super + Y`. The dashboard can
 search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`.
