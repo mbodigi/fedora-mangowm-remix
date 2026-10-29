@@ -1,5 +1,5 @@
 #!/bin/bash
-# Turn a fresh Fedora 44 install into the Fedora MangoWM Remix desktop:
+# Turn a fresh Fedora 44 Everything install with no desktop (Minimal Install) into the Fedora MangoWM Remix desktop:
 #   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
 # Downloads this repo (REF=<branch or tag> to pick a version) and runs install.sh, which asks for
 # your password once (sudo). Read install.sh first if you like: it's short.

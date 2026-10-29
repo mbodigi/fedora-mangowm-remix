@@ -10,8 +10,9 @@ JetBrains Mono everywhere.
 
 ## Install
 
-On a **fresh Fedora 44** (any edition: Workstation, KDE, Everything… from
-[fedoraproject.org](https://fedoraproject.org)), as your normal user:
+On a **fresh Fedora 44 Everything install with no desktop**: boot the
+[Everything netinst ISO](https://fedoraproject.org/misc/#everything), and in the installer's
+Software Selection pick **Minimal Install** (no desktop environment). Then log in as your normal user and run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
@@ -20,8 +21,8 @@ curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/g
 Then reboot, pick the **Mango** session on the new login screen, and log in.
 
 - It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages.
-- It **removes nothing**: your edition and its desktop stay. The login screen switches to ours
-  (`sudo systemctl disable greetd && sudo systemctl enable gdm` switches back).
+- Fedora Workstation, KDE and other editions or spins (anything with a desktop already) aren't
+  supported: start from Everything with no desktop.
 - **Bootloader:** where it's safe (UEFI, Secure Boot off, no Windows on the disk) it switches to
   **systemd-boot**, like the original machine, and keeps GRUB as a fallback entry in your PC's boot
   menu. Otherwise GRUB stays, with a message saying why. `… | SDBOOT=0 bash` keeps GRUB.
@@ -34,7 +35,7 @@ Then reboot, pick the **Mango** session on the new login screen, and log in.
 1. Adds the repos: RPM Fusion free/nonfree, terra (MangoWM, Ghostty, VSCodium), the official
    [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell), Brave and LibreWolf.
 2. Swaps Fedora's `ffmpeg-free` for RPM Fusion's full `ffmpeg`, then installs the package list
-   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's Fedora edition identity, kernels
+   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's Fedora release package, kernels
    (Fedora's own are used) and installer leftovers.
 3. Switches to systemd-boot where it's safe (see above): sdubby in place of grubby, `bootctl install`,
    kernels as boot entries on the EFI partition (without the rescue image, which doesn't fit there).

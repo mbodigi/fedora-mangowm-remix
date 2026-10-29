@@ -1,9 +1,9 @@
 #!/bin/bash
-# Turn a stock Fedora 44 (any edition or spin) into this desktop. Usually run through get.sh:
+# Turn a fresh Fedora 44 Everything install with no desktop (Minimal Install) into this desktop. Usually run through get.sh:
 #   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
 # or from a clone of this repo: ./install.sh
-# Asks for your password once (sudo), needs internet (~2.5 GB of packages), and removes nothing:
-# Fedora's edition and desktop stay; the MangoWM login session is added next to them. Where it's
+# Asks for your password once (sudo) and needs internet (~2.5 GB of packages). Editions or spins
+# that already have a desktop (Workstation, KDE…) aren't supported. Where it's
 # safe (UEFI, Secure Boot off, no Windows), systemd-boot becomes the bootloader, with GRUB kept as a
 # fallback boot entry; SDBOOT=0 keeps GRUB.
 set -euo pipefail
@@ -15,7 +15,7 @@ me=$(id -un)
 
 # Packages from the original machine that must not land on someone else's Fedora:
 # its bootloader tooling (sdubby replaces grubby, which Fedora's GRUB needs for new kernels),
-# its edition identity, and installer/live-image leftovers. Kernels come from Fedora as usual.
+# its fedora-release package, and installer/live-image leftovers. Kernels come from Fedora as usual.
 skip='^(sdubby|systemd-boot-unsigned|fedora-release.*|kernel.*|anaconda.*|libreport-anaconda|dracut-live|livesys-scripts|initial-setup.*|plymouth-theme-.*|gpg-pubkey)$'
 pkgs=$(grep -vE "$skip" setup/packages.txt | tr '\n' ' ')
 
@@ -51,7 +51,7 @@ systemd-tmpfiles --create shell-greeter.conf
 semanage fcontext -a -t cache_home_t '/var/cache/shell-greeter(/.*)?' 2>/dev/null || true
 restorecon -RF /etc /usr/local /usr/share/shell-setup /usr/share/librewolf /var/lib/greeter 2>/dev/null || true
 
-# login screen: our greeter instead of the edition's display manager (which stays installed)
+# login screen: our greeter (and no other display manager, in case one got installed)
 for dm in gdm sddm lightdm lxdm; do systemctl disable "$dm" 2>/dev/null || true; done
 systemctl enable greetd
 systemctl set-default graphical.target
@@ -90,4 +90,3 @@ EOF
 
 echo
 echo "Done. Reboot to get the new login screen; pick the Mango session and log in."
-echo "To go back to your edition's login screen: sudo systemctl disable greetd && sudo systemctl enable gdm (or sddm)."
