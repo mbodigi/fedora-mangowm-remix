@@ -1,6 +1,76 @@
 {
+    // look: JetBrains Mono like the rest of the desktop, monochrome dark with the uniform grays
+    "editor.fontFamily": "'JetBrains Mono', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 14,
+    "editor.lineHeight": 1.5,
+    "terminal.integrated.fontFamily": "'JetBrains Mono'",
+    "terminal.integrated.fontSize": 13,
+    "workbench.colorTheme": "Dark Modern",
+    "window.autoDetectColorScheme": false,
+    "workbench.colorCustomizations": {
+        "editor.background": "#131313",
+        "sideBar.background": "#1a1a1a",
+        "activityBar.background": "#1a1a1a",
+        "panel.background": "#131313",
+        "terminal.background": "#131313",
+        "titleBar.activeBackground": "#1a1a1a",
+        "statusBar.background": "#1a1a1a",
+        "statusBar.noFolderBackground": "#1a1a1a",
+        "editorGroupHeader.tabsBackground": "#1a1a1a",
+        "tab.inactiveBackground": "#1a1a1a",
+        "tab.activeBackground": "#131313",
+        "tab.activeBorderTop": "#8a8a8a",
+        "focusBorder": "#8a8a8a",
+        "activityBar.activeBorder": "#8a8a8a",
+        "activityBarBadge.background": "#505050",
+        "badge.background": "#505050",
+        "button.background": "#505050",
+        "button.foreground": "#ffffff",
+        "button.hoverBackground": "#5c5c5c",
+        "progressBar.background": "#8a8a8a",
+        "selection.background": "#505050",
+        "editor.selectionBackground": "#505050",
+        "list.activeSelectionBackground": "#505050",
+        "list.activeSelectionForeground": "#ffffff",
+        "list.inactiveSelectionBackground": "#3c3c3c",
+        "textLink.foreground": "#c0c0c0",
+        "statusBarItem.remoteBackground": "#505050"
+    },
+
+    // window: no title bar or menu bar (Alt shows the menu), quiet start
+    "window.titleBarStyle": "custom",
+    "window.customTitleBarVisibility": "never",
+    "window.menuBarVisibility": "toggle",
+    "editor.minimap.enabled": false,
+    "workbench.startupEditor": "none",
+    "workbench.tips.enabled": false,
+    "workbench.welcomePage.walkthroughs.openOnInstall": false,
+
+    // privacy: no telemetry, no update or extension checks behind your back
+    "telemetry.telemetryLevel": "off",
+    "update.mode": "none",
+    "extensions.autoCheckUpdates": false,
+    "extensions.ignoreRecommendations": true,
+
+    // editing
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.autoSave": "off",
+    "editor.renderWhitespace": "boundary",
+    "editor.bracketPairColorization.enabled": true,
     "security.workspace.trust.untrustedFiles": "open",
-    "editor.fontSize": 18,
-    "workbench.colorTheme": "Visual Studio Dark",
-    "window.autoDetectColorScheme": true
+
+    // our files: bash scripts, QML shell, mango configs
+    "files.associations": {
+        "*.conf": "properties",
+        "**/.local/bin/*": "shellscript",
+        "**/src/shell-*": "shellscript"
+    },
+    "shellcheck.enable": true,
+    "workbench.editorAssociations": {
+        "{git,gitlens,chat-editing-snapshot-text-model,copilot,git-graph,git-graph-3}:/**/*.qrc": "default",
+        "*.qrc": "qt-core.qrcEditor"
+    }
 }
