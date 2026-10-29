@@ -44,6 +44,7 @@
     "window.menuBarVisibility": "toggle",
     "editor.minimap.enabled": false,
     "workbench.startupEditor": "none",
+    "window.restoreWindows": "none",
     "workbench.tips.enabled": false,
     "workbench.welcomePage.walkthroughs.openOnInstall": false,
 
