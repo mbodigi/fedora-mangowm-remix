@@ -54,6 +54,7 @@ sys_items=(
     /etc/udev/rules.d/90-battery-threshold.rules
     /etc/tuned/profiles/laptop-battery /etc/tuned/profiles/laptop-battery-performance /etc/tuned/ppd.conf
     /etc/scx_loader/config.toml /etc/kernel/install.d/50-boot-config.install
+    /etc/systemd/zram-generator.conf
     /etc/dnf/dnf.conf
     "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:errornointernet:quickshell.repo"
     /etc/yum.repos.d/brave-browser.repo /etc/yum.repos.d/librewolf.repo
