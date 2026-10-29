@@ -17,10 +17,10 @@ mkdir -p "$S/root" "$S/home" "$S/greeter-cache" "$P/home/.local/share/wallpapers
 
 # ---------- user configs -> setup/home ----------
 home_items=(
-    .config/mango .config/quickshell/shell .config/quickshell/greeter .config/waybar
+    .config/mango .config/quickshell/shell .config/quickshell/greeter
     .config/ghostty .config/gtk-3.0 .config/gtk-4.0 .config/qt5ct .config/qt6ct
     .config/fontconfig .config/fastfetch .config/mpv .config/environment.d
-    .config/Thunar .config/xfce4 .config/cava
+    .config/Thunar .config/xfce4
     .config/micro/bindings.json .config/micro/settings.json
     .config/VSCodium/User/settings.json .config/VSCodium/User/keybindings.json .config/VSCodium/User/snippets
     .config/mimeapps.list .config/xdg-terminals.list
@@ -40,7 +40,6 @@ find "$S/home" \( -name '*.bak*' -o -name '*.backup*' -o -name '.git' -o -name '
 
 # portability: helper scripts move to /usr/local/bin, the home path becomes @HOME@ (filled in per user)
 grep -rlI "$H/.local/bin/" "$S/home" | xargs -r sed -i "s#$H/.local/bin/#/usr/local/bin/#g"
-sed -i "s#^exec_once=~/.local/bin/dock-autohide#exec_once=/usr/local/bin/dock-autohide#" "$S/home/.config/mango/config.conf"
 grep -q shell-firstlogin "$S/home/.config/mango/config.conf" ||
     printf '\n# first login of a new user: dconf settings (fonts, theme, Celluloid)\nexec_once=/usr/local/bin/shell-firstlogin\n' >> "$S/home/.config/mango/config.conf"
 grep -rlI "$H" "$S/home" | xargs -r sed -i "s#$H#@HOME@#g"
@@ -63,7 +62,7 @@ for p in "${sys_items[@]}"; do
     cp -a "$p" "$S/root$p"
 done
 mkdir -p "$S/root/usr/local/bin"
-cp -a "$H"/.local/bin/{shot,dock-autohide,dock-pin,mango-cycle} src/shell-user-setup src/shell-firstlogin "$S/root/usr/local/bin/"
+cp -a "$H"/.local/bin/{shot,mango-cycle} src/shell-user-setup src/shell-firstlogin "$S/root/usr/local/bin/"
 chmod 755 "$S/root/usr/local/bin/"*
 
 # the login screen's account: created by sysusers.d/tmpfiles.d (no Fedora package provides it)

@@ -125,7 +125,7 @@ that looks like a key or password.
 ## Credits
 
 - [MangoWM](https://github.com/mangowm/mango), [Quickshell](https://quickshell.org),
-  [matugen](https://github.com/InioX/matugen), [Waybar](https://github.com/Alexays/Waybar),
+  [matugen](https://github.com/InioX/matugen),
   [greetd](https://kl.wtf/projects/greetd)
 - [Material Symbols](https://fonts.google.com/icons) font (Apache License 2.0), bundled for the shell's icons
 - Demo GIF wallpaper: Fedora 44 default background by the Fedora Design Team, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

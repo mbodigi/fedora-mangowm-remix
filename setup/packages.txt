@@ -49,7 +49,6 @@ aribb24
 at
 atheros-firmware
 atk
-atkmm
 at-spi2-atk
 at-spi2-core
 attr
@@ -91,7 +90,6 @@ bzip2-libs
 ca-certificates
 cairo
 cairo-gobject
-cairomm
 cairomm1.16
 capstone
 c-ares
@@ -378,7 +376,6 @@ glibc-all-langpacks
 glibc-common
 glibc-devel
 glibc-gconv-extra
-glibmm2.4
 glibmm2.68
 glib-networking
 glusterfs
@@ -464,7 +461,6 @@ google-noto-serif-vf-fonts
 gperftools-libs
 gpgme
 gpgmepp
-gpsd-libs
 graphene
 graphite2
 graphviz-libs
@@ -492,7 +488,6 @@ gtk3
 gtk4
 gtk4-layer-shell
 gtk-layer-shell
-gtkmm3.0
 gtkmm4.0
 gtksourceview4
 gtk-update-icon-cache
@@ -587,7 +582,6 @@ jomolhari-fonts
 jose
 jq
 json-c
-jsoncpp
 json-glib
 jxrlib
 kbd
@@ -824,7 +818,6 @@ libmodplug
 libmodulemd
 libmount
 libmpc
-libmpdclient
 libmpeg2
 libmspack
 libmysofa
@@ -913,7 +906,6 @@ libsepol
 libserf
 libshaderc
 libshout
-libsigc++20
 libsigc++30
 libslirp
 libSM
@@ -1229,7 +1221,6 @@ pam_passwdqc
 pandoc-cli
 pandoc-common
 pango
-pangomm
 pangomm2.48
 paps
 parted
@@ -1585,7 +1576,6 @@ soundtouch
 source-highlight
 soxr
 spandsp
-spdlog
 speex
 spice-glib
 spice-gtk3
@@ -1714,7 +1704,6 @@ vte-profile
 vulkan-loader
 vvenc-libs
 wavpack
-waybar
 wcurl
 webkit2gtk4.1
 webrtc-audio-processing
