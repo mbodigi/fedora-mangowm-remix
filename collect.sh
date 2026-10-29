@@ -25,6 +25,7 @@ home_items=(
     .config/VSCodium/User/settings.json .config/VSCodium/User/keybindings.json .config/VSCodium/User/snippets
     .config/mimeapps.list .config/xdg-terminals.list
     .local/share/applications/brave-browser.desktop
+    .local/share/applications/panel-preferences.desktop
     .local/share/color-schemes
     .local/state/shell/settings.json .local/state/shell/colors.json .local/state/shell/wallpaper
 )

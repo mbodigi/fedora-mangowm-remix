@@ -26,6 +26,7 @@ ShellRoot {
     }
 
     Launcher {}
+    AppGrid {}
     ClipboardPanel {}
     PowerMenu {}
     Popups {}
