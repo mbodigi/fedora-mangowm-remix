@@ -15,8 +15,8 @@ me=$(id -un)
 
 # Packages from the original machine that must not land on someone else's Fedora:
 # its bootloader tooling (sdubby replaces grubby, which Fedora's GRUB needs for new kernels),
-# its fedora-release package, and installer/live-image leftovers. Kernels come from Fedora as usual.
-skip='^(sdubby|systemd-boot-unsigned|fedora-release.*|kernel.*|anaconda.*|libreport-anaconda|dracut-live|livesys-scripts|initial-setup.*|plymouth-theme-.*|gpg-pubkey)$'
+# its fedora-release package, its Secure Boot key tool (sbctl), and installer/live-image leftovers. Kernels come from Fedora as usual.
+skip='^(sdubby|systemd-boot-unsigned|fedora-release.*|kernel.*|anaconda.*|libreport-anaconda|dracut-live|livesys-scripts|initial-setup.*|plymouth-theme-.*|gpg-pubkey|sbctl)$'
 pkgs=$(grep -vE "$skip" setup/packages.txt | tr '\n' ' ')
 
 echo "Installing the Fedora MangoWM Remix setup for $me…"

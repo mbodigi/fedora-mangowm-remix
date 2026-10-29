@@ -1549,6 +1549,7 @@ sane-backends-drivers-cameras
 sane-backends-drivers-scanners
 sane-backends-libs
 satyr
+sbctl
 scenefx
 scrub
 sdbus-cpp
