@@ -50,8 +50,8 @@ keybind = shift+enter=text:\n
 # Rando stuff
 gtk-single-instance = true
 
-# Dank color generation
-theme = dankcolors
+# matugen colors
+theme = matugen
 
 # Selection uses the same soft gray accent as the rest of the desktop
 selection-background = #505050

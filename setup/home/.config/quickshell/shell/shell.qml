@@ -1,4 +1,4 @@
-// Our own shell (replacing DMS piece by piece). Run with: qs -c shell
+// Our own shell. Run with: qs -c shell
 import QtQuick
 import Quickshell
 import "bar"

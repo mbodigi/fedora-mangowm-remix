@@ -1,5 +1,5 @@
 // Polkit agent: the password dialog apps get when they need admin rights (Disks, software installs, pkexec).
-// Only one agent per session can register; it takes over once DMS stops providing one.
+// Only one agent per session can register.
 import QtQuick
 import Quickshell
 import Quickshell.Wayland

@@ -99,7 +99,7 @@ PanelWindow {
 
     Process {
         id: reader
-        command: ["sh", "-c", "cat ~/.config/mango/config.conf; printf '\\n\\x1e\\n'; cat ~/.config/mango/dms/binds.conf"]
+        command: ["sh", "-c", "cat ~/.config/mango/config.conf; printf '\\n\\x1e\\n'; cat ~/.config/mango/conf.d/binds.conf"]
         stdout: StdioCollector {
             onStreamFinished: root.parse(text.split("\x1e"))
         }

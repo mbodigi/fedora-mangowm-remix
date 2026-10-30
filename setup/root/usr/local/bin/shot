@@ -1,5 +1,5 @@
 #!/bin/sh
-# Screenshots (replaces `dms screenshot`): shot [region|full|window]
+# Screenshots: shot [region|full|window]
 # Saves to ~/Pictures/Screenshots, copies to the clipboard, and shows a notification.
 set -e
 dir="$HOME/Pictures/Screenshots"

@@ -1,6 +1,6 @@
 pragma Singleton
 // Notification daemon: keeps a history and a list of on-screen popups.
-// Only one daemon can own notifications on the session bus; while DMS runs, DMS has it.
+// Only one daemon can own notifications on the session bus.
 import QtQuick
 import Quickshell
 import Quickshell.Io
