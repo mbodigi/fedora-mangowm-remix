@@ -59,26 +59,18 @@ That's it.
 
 ### What the installer does
 
-1. Adds the repos: RPM Fusion free/nonfree, terra (MangoWM, Ghostty, VSCodium), the official
-   [Quickshell COPR](https://copr.fedorainfracloud.org/coprs/errornointernet/quickshell), Brave and LibreWolf.
-2. Swaps Fedora's `ffmpeg-free` for RPM Fusion's full `ffmpeg`, then installs the package list
-   from [`setup/packages.txt`](setup/packages.txt). Skipped: the original machine's Fedora release package, kernels
-   (Fedora's own are used) and installer leftovers.
-3. Switches to systemd-boot where it's safe (see above): sdubby in place of grubby, `bootctl install`,
-   kernels as boot entries on the EFI partition (without the rescue image, which doesn't fit there).
-4. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
-   the login screen, browser policies, LibreWolf defaults, battery rule, tuned profile, helper scripts.
-   Then applies the Vayu Linux name, logo and boot splash (see above).
-5. Creates the `greeter` account the login screen runs as, enables greetd, and enables `scx_loader` (the
-   `scx_lavd` CPU scheduler, see [Performance and power](#performance-and-power)).
-6. Tunes the system: dnf with 15 parallel downloads, no optional extras ("weak dependencies"), no anonymous
-   "countme" ping, and extra repos skipped when they're down; boot doesn't wait for the network; a 1-second
-   boot menu (systemd-boot); daily firmware update checks (fwupd).
-7. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
-8. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
+1. **Repos:** adds RPM Fusion, terra, the Quickshell COPR, Brave and LibreWolf.
+2. **Packages:** installs the package list ([`setup/packages.txt`](setup/packages.txt)) and swaps Fedora's limited ffmpeg for the full one. Kernels stay Fedora's own.
+3. **Notes app:** installs Iotas from Flathub, without network access.
+4. **System files:** copies the login screen, power profiles, browser policies and helper scripts from [`setup/root`](setup/root).
+5. **Branding:** sets the Vayu Linux name, logo and boot splash.
+6. **Services:** turns on the login screen, the CPU scheduler and daily firmware update checks, and stops the boot from waiting for the network.
+7. **dnf:** sets 15 parallel downloads, no optional extras, no "countme" ping, and skips extra repos that are down.
+8. **Your settings:** copies the desktop configs from [`setup/home`](setup/home) to your user, keeping any files you already have.
+9. **Bootloader:** switches to systemd-boot with a 1-second menu where it's safe (see Details above), otherwise keeps GRUB.
+10. **First login:** applies the theme, icons and fonts.
 
-No wallpapers are included (they're other people's art); pick one with `Super + Y`. The dashboard can
-search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`.
+No wallpapers are included, since they're other people's art. Press `Super + Y` to pick one or download one from wallhaven.
 
 ## What you get
 
