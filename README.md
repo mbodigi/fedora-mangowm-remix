@@ -2,7 +2,7 @@
 
 <img src="setup/home/.config/fastfetch/vayu.svg" alt="Vayu Linux logo" width="96" align="right">
 
-**Vayu Linux** is a Linux distribution based on Fedora 44. It keeps Fedora's packages, repos, kernels and
+**Vayu Linux** is a Linux distribution based on Fedora. It keeps Fedora's packages, repos, kernels and
 updates, and adds its own desktop and identity on top: **MangoWM** (a Wayland compositor) with a
 **hand-written Quickshell shell**, a dock with app pinning, a custom login screen, a uniform monochrome
 theme with JetBrains Mono everywhere, its own name, logo and boot splash, and tuned power and memory settings.
@@ -16,7 +16,7 @@ Vayu (वायु) is the Sanskrit name of the wind.
 ## How Vayu Linux relates to Fedora
 
 Vayu Linux is a **Fedora derivative**: not a fork that rebuilds Fedora's packages, but a layer on top of a
-regular Fedora 44 install. You install Fedora 44 Everything with no desktop, then the installer turns it into
+regular Fedora install. You install Fedora Everything with no desktop, then the installer turns it into
 Vayu Linux. What that layer changes:
 
 | Area | What Vayu Linux does |
