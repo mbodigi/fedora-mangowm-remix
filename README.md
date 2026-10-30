@@ -35,7 +35,7 @@ Vayu Linux is an independent project and is not affiliated with or endorsed by t
 
 Vayu Linux installs from the **Fedora Everything ISO**:
 
-1. Download the [Fedora Everything ISO](https://fedoraproject.org/misc/#everything) (currently Fedora 44)
+1. Download the [Fedora Everything ISO](https://fedoraproject.org/misc/#everything)
    and boot it.
 2. In the installer's **Software Selection**, pick **Minimal Install** (no desktop environment), and
    create your user account.
