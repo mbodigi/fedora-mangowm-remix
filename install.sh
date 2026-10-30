@@ -1,5 +1,5 @@
 #!/bin/bash
-# Turn a fresh Fedora 44 Everything install with no desktop (Minimal Install) into this desktop. Usually run through get.sh:
+# Turn a fresh Fedora Everything install with no desktop (Minimal Install) into this desktop. Usually run through get.sh:
 #   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
 # or from a clone of this repo: ./install.sh
 # Asks for your password once (sudo) and needs internet (~2.5 GB of packages). Editions or spins
@@ -9,7 +9,10 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 [ -f setup/packages.txt ] || { echo "setup/ is missing" >&2; exit 1; }
-[ "$(rpm -E %fedora)" = 44 ] || { echo "This setup was made for Fedora 44." >&2; exit 1; }
+# any stable Fedora release from 44 on (no beta, no Rawhide)
+. /etc/os-release
+[ "$(rpm -E %fedora)" -ge 44 ] 2>/dev/null && [ "${RELEASE_TYPE:-}" = stable ] ||
+    { echo "This setup needs a stable Fedora release, 44 or newer." >&2; exit 1; }
 
 me=$(id -un)
 
@@ -28,10 +31,11 @@ R=$1; user=$2; pkgs=$3
 dnf() { command dnf --setopt=max_parallel_downloads=15 --setopt=fastestmirror=True --setopt=install_weak_deps=False "$@"; }
 
 # repos: RPM Fusion and terra from their release packages, the rest are plain .repo files
+rel=$(rpm -E %fedora)
 dnf -y install \
-    "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm" \
-    "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-44.noarch.rpm"
-rpm -q terra-release >/dev/null || dnf -y install --nogpgcheck --repofrompath "terra,https://repos.fyralabs.com/terra44" terra-release
+    "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$rel.noarch.rpm" \
+    "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$rel.noarch.rpm"
+rpm -q terra-release >/dev/null || dnf -y install --nogpgcheck --repofrompath "terra,https://repos.fyralabs.com/terra$rel" terra-release
 cp "$R"/setup/root/etc/yum.repos.d/*.repo /etc/yum.repos.d/
 
 # the full ffmpeg from RPM Fusion instead of Fedora's ffmpeg-free (the one swap this does)

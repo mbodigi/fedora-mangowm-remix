@@ -136,7 +136,7 @@ that looks like a key or password.
 ```
 .
 ├── get.sh                the curl one-liner: downloads this repo and runs install.sh
-├── install.sh            installs the setup on a stock Fedora 44
+├── install.sh            installs the setup on a stock Fedora
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
 ├── src/
 │   ├── shell-user-setup  copies the configs to a user, fills in @HOME@
