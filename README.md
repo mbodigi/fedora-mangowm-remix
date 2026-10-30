@@ -1,12 +1,35 @@
 # Vayu Linux
 
-A complete Fedora 44 desktop, built as a remix of Fedora: **MangoWM** (a Wayland compositor) with a **hand-written Quickshell
-shell**, a dock with app pinning, a custom login screen, and a uniform monochrome theme with
-JetBrains Mono everywhere.
+<img src="setup/home/.config/fastfetch/vayu.svg" alt="Vayu Linux logo" width="96" align="right">
+
+**Vayu Linux** is a Linux distribution based on Fedora 44. It keeps Fedora's packages, repos, kernels and
+updates, and adds its own desktop and identity on top: **MangoWM** (a Wayland compositor) with a
+**hand-written Quickshell shell**, a dock with app pinning, a custom login screen, a uniform monochrome
+theme with JetBrains Mono everywhere, its own name, logo and boot splash, and tuned power and memory settings.
+
+Vayu (वायु) is the Sanskrit name of the wind.
 
 ![The desktop: bar, dock, app launcher, dashboard, control center, shortcut cheatsheet and fastfetch](docs/demo.gif)
 
 <sub>Shown with Fedora 44's default wallpaper (CC BY-SA 4.0, Fedora Design Team). The theme colors are generated from whatever wallpaper you pick.</sub>
+
+## How Vayu Linux relates to Fedora
+
+Vayu Linux is a **Fedora derivative**: not a fork that rebuilds Fedora's packages, but a layer on top of a
+regular Fedora 44 install. You install Fedora 44 Everything with no desktop, then the installer turns it into
+Vayu Linux. What that layer changes:
+
+| Area | What Vayu Linux does |
+|---|---|
+| **Desktop** | MangoWM, our own Quickshell shell and dock, our own login screen (greetd), matugen theming |
+| **Name** | `/etc/os-release` says **Vayu Linux 44** (`NAME`, `PRETTY_NAME`, logo, color), written from Fedora's own file by [`vayu-os-release`](setup/root/usr/local/bin/vayu-os-release) at install, at every boot and before each new kernel gets its boot entry, so a Fedora update or release upgrade that restores the original file doesn't undo it. `ID=fedora` stays, so dnf, repos and scripts that check for Fedora keep working. A default hostname (`fedora`) becomes `vayu`. |
+| **Boot** | A Plymouth boot splash with the Vayu logo (`setup/root/usr/share/plymouth/themes/vayu`), Fedora's spinner animation below it; boot menu entries are named Vayu Linux. systemd-boot where it's safe (see Install). |
+| **Logo** | [`vayu.svg`](setup/home/.config/fastfetch/vayu.svg), shown by fastfetch and used for the OS icon (`vayu-logo-icon`) |
+| **System** | Power profiles that follow the charger, the `scx_lavd` scheduler, zstd-compressed zram swap |
+| **Packages** | Extra repos (RPM Fusion, terra, Quickshell COPR, Brave, LibreWolf) and the package list in `setup/packages.txt` |
+
+Everything else (kernel, system libraries, security updates, release upgrades) comes straight from Fedora.
+Vayu Linux is an independent project and is not affiliated with or endorsed by the Fedora Project.
 
 ## Install
 
@@ -41,6 +64,7 @@ Then reboot, pick the **Mango** session on the new login screen, and log in.
    kernels as boot entries on the EFI partition (without the rescue image, which doesn't fit there).
 4. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
    the login screen, browser policies, LibreWolf defaults, battery rule, tuned profile, helper scripts.
+   Then applies the Vayu Linux name, logo and boot splash (see above).
 5. Creates the `greeter` account the login screen runs as, and enables greetd.
 6. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
 7. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
@@ -129,4 +153,5 @@ that looks like a key or password.
   [greetd](https://kl.wtf/projects/greetd)
 - [Material Symbols](https://fonts.google.com/icons) font (Apache License 2.0), bundled for the shell's icons
 - Demo GIF wallpaper: Fedora 44 default background by the Fedora Design Team, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-- Built on [Fedora](https://fedoraproject.org) 44. This is an unofficial remix, not a Fedora Project release.
+- Built on [Fedora](https://fedoraproject.org) 44. Vayu Linux is not a Fedora Project release.
+- Boot splash animation: [Plymouth](https://gitlab.freedesktop.org/plymouth/plymouth)'s spinner theme (GPL-2.0), copied from Fedora's package at install time

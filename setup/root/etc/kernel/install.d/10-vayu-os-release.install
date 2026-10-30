@@ -1,0 +1,5 @@
+#!/bin/sh
+# Vayu Linux: make sure /etc/os-release has our name before 90-loaderentry names the boot entry
+# (a fedora-release update, e.g. during a release upgrade, puts Fedora's file back until the next boot).
+[ "$1" = add ] && /usr/local/bin/vayu-os-release
+exit 0

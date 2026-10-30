@@ -1,0 +1,16 @@
+#!/bin/sh
+# Vayu Linux branding: write /etc/os-release from Fedora's /usr/lib/os-release with our name.
+# ID stays "fedora" so dnf, repos and scripts keep working.
+set -e
+src=/usr/lib/os-release
+. "$src"
+tmp=$(mktemp /etc/.os-release.XXXXXX)
+sed -e 's/^NAME=.*/NAME="Vayu Linux"/' \
+    -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"Vayu Linux $VERSION_ID\"/" \
+    -e 's/^ANSI_COLOR=.*/ANSI_COLOR="0;38;2;63;176;196"/' \
+    -e 's/^LOGO=.*/LOGO=vayu-logo-icon/' \
+    -e 's|^HOME_URL=.*|HOME_URL="https://github.com/mbodigi/fedora-mangowm-remix"|' \
+    -e 's/^DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="vayu"/' "$src" > "$tmp"
+grep -q '^ID_LIKE=' "$tmp" || echo 'ID_LIKE=fedora' >> "$tmp"
+chmod 644 "$tmp"
+if cmp -s "$tmp" /etc/os-release; then rm -f "$tmp"; else mv -f "$tmp" /etc/os-release; restorecon /etc/os-release 2>/dev/null || true; fi

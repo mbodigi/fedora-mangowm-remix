@@ -53,8 +53,11 @@ sys_items=(
     /etc/brave/policies/managed
     /etc/udev/rules.d/90-battery-threshold.rules
     /etc/tuned/profiles/laptop-battery /etc/tuned/profiles/laptop-battery-performance /etc/tuned/ppd.conf
-    /etc/scx_loader/config.toml /etc/kernel/install.d/50-boot-config.install
+    /etc/scx_loader/config.toml /etc/kernel/install.d/50-boot-config.install /etc/kernel/install.d/10-vayu-os-release.install
     /etc/systemd/zram-generator.conf
+    /usr/local/bin/vayu-os-release /etc/systemd/system/vayu-os-release.service
+    /usr/share/icons/hicolor/scalable/apps/vayu-logo-icon.svg
+    /usr/share/plymouth/themes/vayu/vayu.plymouth /usr/share/plymouth/themes/vayu/watermark.png
     /etc/dnf/dnf.conf
     "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:errornointernet:quickshell.repo"
     /etc/yum.repos.d/brave-browser.repo /etc/yum.repos.d/librewolf.repo

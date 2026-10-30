@@ -51,6 +51,17 @@ systemd-tmpfiles --create shell-greeter.conf
 semanage fcontext -a -t cache_home_t '/var/cache/shell-greeter(/.*)?' 2>/dev/null || true
 restorecon -RF /etc /usr/local /usr/share/shell-setup /usr/share/librewolf /var/lib/greeter 2>/dev/null || true
 
+# Vayu Linux branding. ID stays "fedora" in os-release, so dnf, repos and updates are Fedora's as before.
+# Name: vayu-os-release writes /etc/os-release from Fedora's /usr/lib/os-release (and again at every boot,
+# since fedora-release updates put the original back). Boot splash: the spinner animation with our logo.
+systemctl enable vayu-os-release.service
+/usr/local/bin/vayu-os-release
+case "$(hostnamectl hostname)" in fedora|localhost|localhost-live|localhost.localdomain) hostnamectl set-hostname vayu ;; esac
+rpm -q plymouth-theme-spinner >/dev/null || dnf -y install plymouth-plugin-two-step plymouth-theme-spinner
+cp -n /usr/share/plymouth/themes/spinner/*.png /usr/share/plymouth/themes/vayu/
+restorecon -R /usr/share/plymouth/themes/vayu /usr/share/icons/hicolor/scalable/apps /etc/systemd/system 2>/dev/null || true
+plymouth-set-default-theme -R vayu
+
 # login screen: our greeter (and no other display manager, in case one got installed)
 for dm in gdm sddm lightdm lxdm; do systemctl disable "$dm" 2>/dev/null || true; done
 systemctl enable greetd
