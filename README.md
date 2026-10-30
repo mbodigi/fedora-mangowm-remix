@@ -33,15 +33,19 @@ Vayu Linux is an independent project and is not affiliated with or endorsed by t
 
 ## Install
 
-On a **fresh Fedora 44 Everything install with no desktop**: boot the
-[Everything netinst ISO](https://fedoraproject.org/misc/#everything), and in the installer's
-Software Selection pick **Minimal Install** (no desktop environment). Then log in as your normal user and run:
+Vayu Linux installs from the **Fedora Everything ISO**:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
-```
+1. Download the [Fedora Everything ISO](https://fedoraproject.org/misc/#everything) (currently Fedora 44)
+   and boot it.
+2. In the installer's **Software Selection**, pick **Minimal Install** (no desktop environment), and
+   create your user account.
+3. After the install, log in as your user and run:
 
-Then reboot, pick the **Mango** session on the new login screen, and log in.
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
+   ```
+
+4. Reboot, pick the **Mango** session on the new login screen, and log in.
 
 - It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages.
 - Fedora Workstation, KDE and other editions or spins (anything with a desktop already) aren't
