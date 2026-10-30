@@ -1,11 +1,11 @@
 #!/bin/bash
 # Turn a fresh Fedora Everything install with no desktop (Minimal Install) into the Vayu Linux desktop:
-#   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/mbodigi/vayu-linux/main/get.sh | bash
 # Downloads this repo (REF=<branch or tag> to pick a version) and runs install.sh, which asks for
 # your password once (sudo). Read install.sh first if you like: it's short.
 set -euo pipefail
 
-REPO=mbodigi/fedora-mangowm-remix
+REPO=mbodigi/vayu-linux
 REF=${REF:-main}
 
 [ "$(id -u)" != 0 ] || { echo "Run this as your normal user, not root: it uses sudo itself." >&2; exit 1; }

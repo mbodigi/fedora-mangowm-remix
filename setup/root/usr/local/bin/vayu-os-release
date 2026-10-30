@@ -9,7 +9,7 @@ sed -e 's/^NAME=.*/NAME="Vayu Linux"/' \
     -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"Vayu Linux $VERSION_ID\"/" \
     -e 's/^ANSI_COLOR=.*/ANSI_COLOR="0;38;2;63;176;196"/' \
     -e 's/^LOGO=.*/LOGO=vayu-logo-icon/' \
-    -e 's|^HOME_URL=.*|HOME_URL="https://github.com/mbodigi/fedora-mangowm-remix"|' \
+    -e 's|^HOME_URL=.*|HOME_URL="https://github.com/mbodigi/vayu-linux"|' \
     -e 's/^DEFAULT_HOSTNAME=.*/DEFAULT_HOSTNAME="vayu"/' "$src" > "$tmp"
 grep -q '^ID_LIKE=' "$tmp" || echo 'ID_LIKE=fedora' >> "$tmp"
 chmod 644 "$tmp"

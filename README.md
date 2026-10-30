@@ -42,7 +42,7 @@ Vayu Linux installs from the **Fedora Everything ISO**:
 3. After the install, log in as your user and run:
 
    ```bash
-   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/mbodigi/vayu-linux/main/get.sh | bash
    ```
 
 4. Reboot, pick the **Mango** session on the new login screen, and log in.

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Turn a fresh Fedora Everything install with no desktop (Minimal Install) into this desktop. Usually run through get.sh:
-#   curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/main/get.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/mbodigi/vayu-linux/main/get.sh | bash
 # or from a clone of this repo: ./install.sh
 # Asks for your password once (sudo) and needs internet (~2.5 GB of packages). Editions or spins
 # that already have a desktop (Workstation, KDE…) aren't supported. Where it's

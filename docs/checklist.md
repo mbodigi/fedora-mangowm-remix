@@ -7,7 +7,7 @@
 
 ## 2. Install test (on a fresh Fedora 44 VM, not this machine)
 
-- [ ] Push to a branch, then in the VM: `curl -fsSL https://raw.githubusercontent.com/mbodigi/fedora-mangowm-remix/<branch>/get.sh | REF=<branch> bash`
+- [ ] Push to a branch, then in the VM: `curl -fsSL https://raw.githubusercontent.com/mbodigi/vayu-linux/<branch>/get.sh | REF=<branch> bash`
 - [ ] It finishes without errors and doesn't remove packages (Fedora's GRUB and grubby stay)
 - [ ] Reboot: the greeter appears → log in to Mango → the bar and dock come up, on workspace 1
 
