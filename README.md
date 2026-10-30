@@ -69,7 +69,8 @@ Vayu Linux installs from the **Fedora Everything ISO**:
 4. Copies the system files from `setup/root` as root, without changing existing folders like `/` or `/etc`:
    the login screen, browser policies, LibreWolf defaults, battery rule, tuned profile, helper scripts.
    Then applies the Vayu Linux name, logo and boot splash (see above).
-5. Creates the `greeter` account the login screen runs as, and enables greetd.
+5. Creates the `greeter` account the login screen runs as, enables greetd, and enables `scx_loader` (the
+   `scx_lavd` CPU scheduler, see [Performance and power](#performance-and-power)).
 6. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
 7. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
 
@@ -89,6 +90,26 @@ search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`
 | **Browsers** | LibreWolf (default browser, follows the GTK theme, hardware video decoding, compact UI); Brave for web apps, with a policy file that turns off rewards, wallet, VPN, AI, news, telemetry and promos |
 | **Video** | Celluloid + mpv with Intel VA-API hardware decoding, full ffmpeg from RPM Fusion |
 | **Laptop** | tuned with a custom `laptop-battery` profile; ThinkPad battery charge kept between 75 and 80% (udev rule; harmless on other machines) |
+
+### Performance and power
+
+Vayu Linux switches between two setups by itself, depending on whether the charger is plugged in:
+
+| | On the charger | On battery |
+|---|---|---|
+| **Power profile** (tuned) | `throughput-performance`: the CPU runs at full speed | `laptop-battery`: powersave governor, balanced energy preference, USB autosuspend and device power management; the CPU still speeds up when there's work |
+| **CPU scheduler** | `scx_lavd` in performance mode | `scx_lavd` in power-saving mode, with core compaction (work packed onto fewer cores so the rest can sleep) |
+
+- **The scheduler:** [`scx_lavd`](https://github.com/sched-ext/scx) is a sched_ext scheduler (the kernel's
+  plug-in CPU scheduler feature) that gives priority to latency-critical tasks, the ones you're interacting
+  with, so the desktop stays responsive under load. It was originally built for gaming on the Steam Deck.
+  `scx_loader` starts it at boot with `--autopower`, so it follows the power profile above
+  ([`setup/root/etc/scx_loader/config.toml`](setup/root/etc/scx_loader/config.toml)). If it ever stops, the
+  kernel falls back to its normal scheduler.
+- **The switch:** `tuned-ppd` watches the charger and picks the profile
+  ([`setup/root/etc/tuned/ppd.conf`](setup/root/etc/tuned/ppd.conf)).
+- **Memory:** compressed swap in RAM (zram, up to 8 GB) with zstd instead of Fedora's lzo-rle, which fits
+  about 3:1 instead of 2:1 before anything has to wait.
 
 The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,800 packages; a few machine-specific ones are skipped on install).
 
