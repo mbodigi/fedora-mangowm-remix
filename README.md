@@ -33,19 +33,17 @@ Vayu Linux is an independent project and is not affiliated with or endorsed by t
 
 ## Install
 
-Vayu Linux installs from the **Fedora Everything ISO**:
-
-1. Download the [Fedora Everything ISO](https://fedoraproject.org/misc/#everything)
-   and boot it.
-2. In the installer's **Software Selection**, pick **Minimal Install** (no desktop environment), and
-   create your user account.
-3. After the install, log in as your user and run:
-
+1. Install Fedora from the [Everything ISO](https://fedoraproject.org/misc/#everything), choosing **Minimal Install**.
+2. Run:
    ```bash
    curl -fsSL https://raw.githubusercontent.com/mbodigi/vayu-linux/main/get.sh | bash
    ```
+3. Reboot.
 
-4. Reboot, pick the **Mango** session on the new login screen, and log in.
+That's it.
+
+<details>
+<summary>Details</summary>
 
 - It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages, plus the Iotas notes app and its GNOME runtime from Flathub.
 - Fedora Workstation, KDE and other editions or spins (anything with a desktop already) aren't
@@ -56,6 +54,8 @@ Vayu Linux installs from the **Fedora Everything ISO**:
 - Want to read it first? `get.sh` just downloads this repo and runs [`install.sh`](install.sh),
   which is short. Or clone the repo and run `./install.sh` yourself.
 - A specific version: `curl -fsSL …/get.sh | REF=<tag or branch> bash`.
+
+</details>
 
 ### What the installer does
 
