@@ -1,6 +1,6 @@
-# Fedora MangoWM Remix
+# Vayu Linux
 
-A complete Fedora 44 desktop: **MangoWM** (a Wayland compositor) with a **hand-written Quickshell
+A complete Fedora 44 desktop, built as a remix of Fedora: **MangoWM** (a Wayland compositor) with a **hand-written Quickshell
 shell**, a dock with app pinning, a custom login screen, and a uniform monochrome theme with
 JetBrains Mono everywhere.
 

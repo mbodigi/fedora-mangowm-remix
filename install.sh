@@ -19,7 +19,7 @@ me=$(id -un)
 skip='^(sdubby|systemd-boot-unsigned|fedora-release.*|kernel.*|anaconda.*|libreport-anaconda|dracut-live|livesys-scripts|initial-setup.*|plymouth-theme-.*|gpg-pubkey|sbctl)$'
 pkgs=$(grep -vE "$skip" setup/packages.txt | tr '\n' ' ')
 
-echo "Installing the Fedora MangoWM Remix setup for $me…"
+echo "Installing Vayu Linux for $me…"
 sudo SDBOOT="${SDBOOT:-1}" bash -euo pipefail -s "$PWD" "$me" "$pkgs" <<'EOF'
 R=$1; user=$2; pkgs=$3
 # many downloads at once (dnf's default is 3) and the fastest mirrors: ~2.5 GB goes much faster.
