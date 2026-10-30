@@ -71,8 +71,11 @@ Vayu Linux installs from the **Fedora Everything ISO**:
    Then applies the Vayu Linux name, logo and boot splash (see above).
 5. Creates the `greeter` account the login screen runs as, enables greetd, and enables `scx_loader` (the
    `scx_lavd` CPU scheduler, see [Performance and power](#performance-and-power)).
-6. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
-7. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
+6. Tunes the system: dnf with 15 parallel downloads, no optional extras ("weak dependencies"), no anonymous
+   "countme" ping, and extra repos skipped when they're down; boot doesn't wait for the network; a 1-second
+   boot menu (systemd-boot); daily firmware update checks (fwupd).
+7. Gives your user the configs from `setup/home` (existing files of yours are kept, not overwritten).
+8. At your first login, `shell-firstlogin` applies the settings that live in dconf (GTK theme, icons, fonts, Celluloid).
 
 No wallpapers are included (they're other people's art); pick one with `Super + Y`. The dashboard can
 search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`.

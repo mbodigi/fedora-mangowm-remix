@@ -67,7 +67,7 @@ sys_items=(
     /usr/local/bin/vayu-os-release /etc/systemd/system/vayu-os-release.service
     /usr/share/icons/hicolor/scalable/apps/vayu-logo-icon.svg
     /usr/share/plymouth/themes/vayu/vayu.plymouth /usr/share/plymouth/themes/vayu/watermark.png
-    /etc/dnf/dnf.conf
+    /etc/dnf/dnf.conf /etc/dnf/repos.override.d/90-vayu.repo
     "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:errornointernet:quickshell.repo"
     /etc/yum.repos.d/brave-browser.repo /etc/yum.repos.d/librewolf.repo
 )

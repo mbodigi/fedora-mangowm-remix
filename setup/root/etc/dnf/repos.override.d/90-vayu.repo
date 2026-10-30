@@ -1,0 +1,22 @@
+# Vayu Linux repo overrides (dnf5 drop-in, so the repo files themselves stay untouched)
+
+# no weekly anonymous "countme" ping for any repo (the repo files set countme=1 themselves)
+[*]
+countme=0
+
+# the extra repos: if one is temporarily down, keep going with the others
+# (Fedora's own repos still stop dnf when they're unreachable)
+[terra*]
+skip_if_unavailable=1
+
+[rpmfusion-*]
+skip_if_unavailable=1
+
+[copr:*]
+skip_if_unavailable=1
+
+[brave-browser]
+skip_if_unavailable=1
+
+[librewolf]
+skip_if_unavailable=1

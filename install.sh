@@ -84,6 +84,10 @@ systemctl enable greetd
 # kernels, this does it for the ones already installed (GRUB installs have it already).
 for k in /usr/lib/modules/*/config; do v=$(basename "$(dirname "$k")"); [ -e "/boot/config-$v" ] || cp "$k" "/boot/config-$v"; done
 systemctl enable scx_loader
+# faster boot: nothing here needs the network up before login (it only matters for network mounts)
+systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
+# firmware/BIOS updates from LVFS: check daily so `fwupdmgr get-updates` knows about security fixes
+systemctl enable fwupd-refresh.timer 2>/dev/null || true
 systemctl set-default graphical.target
 
 /usr/local/bin/shell-user-setup "$user"
@@ -112,7 +116,7 @@ if sdboot_ok; then
     [ -s /etc/kernel/cmdline ] || sed -E 's/(^| )(BOOT_IMAGE|initrd)=[^ ]*//g; s/^ +//' /proc/cmdline > /etc/kernel/cmdline
     bootctl install --esp-path=/boot/efi
     for k in /usr/lib/modules/*/vmlinuz; do kernel-install add "$(basename "$(dirname "$k")")" "$k"; done
-    printf 'timeout 3\ndefault @saved\n' > /boot/efi/loader/loader.conf
+    printf 'timeout 1\ndefault @saved\n' > /boot/efi/loader/loader.conf
     n=$(ls /boot/efi/loader/entries/*.conf 2>/dev/null | wc -l)
     [ "$n" -gt 0 ] && echo "systemd-boot installed with $n kernel entries (GRUB kept as a fallback boot entry)"
 fi
