@@ -43,6 +43,9 @@ for p in "${home_items[@]}"; do
     cp -a "$H/$p" "$S/home/$p"
 done
 
+# personal Brave web apps (YouTube, Netflix…) aren't part of the setup: drop their dock pins
+python3 -I -c 'import json,re,sys; p=sys.argv[1]; d=json.load(open(p)); d["dockPins"]=[x for x in d.get("dockPins",[]) if not re.match(r"^brave-.*-Default$",x)]; open(p,"w").write(json.dumps(d,indent=2))' "$S/home/.local/state/shell/settings.json"
+
 # leftovers that aren't setup
 find "$S/home" \( -name '*.bak*' -o -name '*.backup*' -o -name '.git' -o -name 'node_modules' \) -prune -exec rm -rf {} +
 
