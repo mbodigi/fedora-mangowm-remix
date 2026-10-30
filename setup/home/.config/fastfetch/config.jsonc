@@ -1,11 +1,11 @@
-// fastfetch: Fedora logo as a real image (Ghostty supports the kitty image protocol), info with icons.
+// fastfetch: Vayu logo as a real image (Ghostty supports the kitty image protocol); only info that changes or matters.
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
     "type": "kitty-direct",
     "source": "~/.config/fastfetch/vayu.png",
-    "width": 22,
-    "height": 10,
+    "width": 20,
+    "height": 9,
     "padding": { "top": 1, "left": 2, "right": 4 }
   },
   "display": {
@@ -14,19 +14,20 @@
   },
   "modules": [
     { "type": "title", "format": "{user-name-colored}@{host-name-colored}" },
-    "separator",
-    { "type": "os", "key": "󰖝 OS" },
-    { "type": "kernel", "key": " Kernel" },
-    { "type": "wm", "key": " WM" },
-    { "type": "shell", "key": " Shell" },
-    { "type": "terminal", "key": " Term" },
-    { "type": "packages", "key": "󰏖 Pkgs" },
+    { "type": "os", "key": "󰖝 OS", "format": "{pretty-name}" },
+    { "type": "kernel", "key": "󰌽 Kernel", "format": "{release}" },
     { "type": "uptime", "key": "󰅐 Up" },
-    { "type": "cpu", "key": " CPU" },
-    { "type": "memory", "key": " RAM" },
-    { "type": "disk", "key": "󰋊 Disk", "folders": "/" },
-    { "type": "battery", "key": "󰁹 Batt" },
-    "break",
-    { "type": "colors", "symbol": "circle" }
+    // days since install (birth time of the root filesystem)
+    { "type": "command", "key": "󰃭 Age", "shell": "/bin/sh",
+      "text": "d=$(( ($(date +%s) - $(stat -c %W /)) / 86400 )); echo \"$d days (since $(date -d @$(stat -c %W /) +%b\\ %-d,\\ %Y))\"" },
+    { "type": "packages", "key": "󰏖 Pkgs" },
+    { "type": "cpu", "key": "󰻠 CPU", "format": "{name} ({cores-logical}) {temperature}", "temp": true },
+    { "type": "memory", "key": "󰍛 RAM" },
+    { "type": "disk", "key": "󰋊 Disk", "folders": "/", "format": "{size-used} / {size-total} ({size-percentage})" },
+    { "type": "battery", "key": "󰁹 Batt", "format": "{capacity} {status}" },
+    // power mode (energy preference, follows the charger) and the sched_ext scheduler
+    { "type": "command", "key": "󱐋 Power", "shell": "/bin/sh",
+      "text": "e=$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference 2>/dev/null); s=$(cut -d_ -f1 /sys/kernel/sched_ext/root/ops 2>/dev/null); echo \"${e:-?} · ${s:-default scheduler}\"" },
+    { "type": "localip", "key": "󰩟 IP", "showIpv4": true, "showIpv6": false, "showPrefixLen": false, "compact": true }
   ]
 }
