@@ -74,43 +74,26 @@ No wallpapers are included, since they're other people's art. Press `Super + Y` 
 
 ## What you get
 
-| Part | What it is |
-|---|---|
-| **Window manager** | [MangoWM](https://github.com/mangowm/mango) 0.18 (from the terra repo), tiling + floating, scenefx effects |
-| **Shell** | Our own [Quickshell](https://quickshell.org) shell (`setup/home/.config/quickshell/shell`): bar, app launcher, clipboard history, notifications + center, control center (with a sound output/input drop-down), OSD, lock screen, dashboard with wallpapers, power menu, cheatsheet, task manager, settings panel, polkit password dialog, battery warnings, Wi-Fi login (captive portal) notification |
-| **Dock** | Part of the shell (`dock/`): left edge, intelligent auto-hide, one icon per app with a running indicator. Click focuses / minimizes / restores, middle click closes, **right click → Pin to dock / Unpin, New window, Close** |
-| **Login screen** | A Quickshell greeter run by greetd (`setup/root/usr/local/share/shell-greeter`) |
-| **Theme** | Colors generated from the wallpaper by matugen (monochrome scheme), applied to the shell, GTK 3/4, Qt 5/6 and Mango; accents are fixed soft grays (#505050 / #8a8a8a) |
-| **Fonts** | JetBrains Mono for the UI, monospace and subtitles (fontconfig maps sans-serif to it too) |
-| **Browsers** | LibreWolf (default browser, follows the GTK theme, hardware video decoding, compact UI); Brave for web apps, with a policy file that turns off rewards, wallet, VPN, AI, news, telemetry and promos |
-| **Notes** | [Iotas](https://flathub.org/apps/org.gnome.World.Iotas) from Flathub: opens to your note list, categories, Markdown with checkboxes. No network access, so notes never leave the machine (no Nextcloud sync) |
-| **Video** | Celluloid + mpv with Intel VA-API hardware decoding, full ffmpeg from RPM Fusion |
-| **Laptop** | tuned with a custom `laptop-battery` profile; ThinkPad battery charge kept between 75 and 80% (udev rule; harmless on other machines) |
+- **Window manager:** [MangoWM](https://github.com/mangowm/mango), with tiling and floating windows.
+- **Shell:** our own [Quickshell](https://quickshell.org) shell with a bar, app launcher, notifications, quick settings, dashboard, clipboard history, lock screen and task manager.
+- **Dock:** on the left edge, hides when a window needs the space; right-click an app to pin it.
+- **Login screen:** our own, matching the desktop.
+- **Theme:** colors made from your wallpaper, used everywhere (shell, GTK and Qt apps, window borders), with soft grey accents.
+- **Font:** JetBrains Mono everywhere.
+- **Browsers:** LibreWolf as the default, and Brave for web apps with its extras (rewards, wallet, AI, telemetry) turned off.
+- **Notes:** [Iotas](https://flathub.org/apps/org.gnome.World.Iotas), with no network access, so your notes never leave the machine.
+- **Video:** Celluloid with hardware decoding and the full ffmpeg.
+- **Laptop:** ThinkPad battery charging stops at 80% to make the battery last longer (does nothing on other laptops).
 
 ### Performance and power
 
-Vayu Linux switches between two setups by itself, depending on whether the charger is plugged in:
+- **On the charger:** the CPU runs at full speed and the `scx_lavd` scheduler is in performance mode.
+- **On battery:** power saving, with the CPU still speeding up when there's work, and `scx_lavd` packs work onto fewer cores so the rest can sleep.
+- **Scheduler:** [`scx_lavd`](https://github.com/sched-ext/scx) gives priority to the apps you're using, so the desktop stays smooth under load. It was built for gaming on the Steam Deck; if it ever stops, Linux falls back to its normal scheduler.
+- **Boot:** doesn't wait for the network, and the boot menu waits 1 second. On the original ThinkPad X1 Carbon (4th gen), boot went from 25.5 s to 17.7 s.
+- **Memory:** compressed swap in RAM (zram with zstd), which fits about 3:1 instead of Fedora's usual 2:1.
 
-| | On the charger | On battery |
-|---|---|---|
-| **Power profile** (tuned) | `throughput-performance`: the CPU runs at full speed | `laptop-battery`: powersave governor, balanced energy preference, USB autosuspend and device power management; the CPU still speeds up when there's work |
-| **CPU scheduler** | `scx_lavd` in performance mode | `scx_lavd` in power-saving mode, with core compaction (work packed onto fewer cores so the rest can sleep) |
-
-- **The scheduler:** [`scx_lavd`](https://github.com/sched-ext/scx) is a sched_ext scheduler (the kernel's
-  plug-in CPU scheduler feature) that gives priority to latency-critical tasks, the ones you're interacting
-  with, so the desktop stays responsive under load. It was originally built for gaming on the Steam Deck.
-  `scx_loader` starts it at boot with `--autopower`, so it follows the power profile above
-  ([`setup/root/etc/scx_loader/config.toml`](setup/root/etc/scx_loader/config.toml)). If it ever stops, the
-  kernel falls back to its normal scheduler.
-- **The switch:** `tuned-ppd` watches the charger and picks the profile
-  ([`setup/root/etc/tuned/ppd.conf`](setup/root/etc/tuned/ppd.conf)).
-- **Boot:** the boot doesn't wait for the network (that's only needed for network drives) and the boot menu
-  waits 1 second. On the original ThinkPad X1 Carbon (4th gen), boot time went from 25.5 s to 17.7 s;
-  most of what's left is the laptop's own firmware.
-- **Memory:** compressed swap in RAM (zram, up to 8 GB) with zstd instead of Fedora's lzo-rle, which fits
-  about 3:1 instead of 2:1 before anything has to wait.
-
-The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,800 packages; a few machine-specific ones are skipped on install).
+The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,800 packages).
 
 ### Keyboard shortcuts (the most used ones)
 
@@ -121,7 +104,8 @@ The full package list is in [`setup/packages.txt`](setup/packages.txt) (about 1,
 | `Super + V` | Clipboard history |
 | `Super + D` | Dashboard |
 | `Super + Y` | Wallpapers |
-| `Super + A` | Control center (Wi-Fi, audio, brightness…) |
+| `Super + A` | All apps |
+| `Super + S` | Quick settings (Wi-Fi, Bluetooth, sound, brightness) |
 | `Super + ,` | Settings |
 | `Super + X` | Power menu |
 | `Super + Alt + L` | Lock screen |
