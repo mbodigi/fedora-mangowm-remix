@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Task Manager
+Comment=See running apps and processes, and end them
+Exec=qs -c shell ipc call tasks toggle
+Icon=utilities-system-monitor
+Categories=System;Monitor;
+Keywords=processes;kill;end task;cpu;memory;system monitor;

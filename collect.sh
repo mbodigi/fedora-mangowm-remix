@@ -49,6 +49,7 @@ grep -rlI "$(id -un):" "$S/home" | xargs -r sed -i "s#$(id -un):greeter#<user>:g
 # ---------- system files -> setup/root ----------
 sys_items=(
     /usr/local/share/shell-greeter
+    /usr/local/share/applications/vayu-task-manager.desktop
     /etc/greetd/config.toml
     /etc/brave/policies/managed
     /etc/udev/rules.d/90-battery-threshold.rules
