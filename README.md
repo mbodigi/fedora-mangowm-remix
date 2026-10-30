@@ -112,6 +112,9 @@ Vayu Linux switches between two setups by itself, depending on whether the charg
   kernel falls back to its normal scheduler.
 - **The switch:** `tuned-ppd` watches the charger and picks the profile
   ([`setup/root/etc/tuned/ppd.conf`](setup/root/etc/tuned/ppd.conf)).
+- **Boot:** the boot doesn't wait for the network (that's only needed for network drives) and the boot menu
+  waits 1 second. On the original ThinkPad X1 Carbon (4th gen), boot time went from 25.5 s to 17.7 s;
+  most of what's left is the laptop's own firmware.
 - **Memory:** compressed swap in RAM (zram, up to 8 GB) with zstd instead of Fedora's lzo-rle, which fits
   about 3:1 instead of 2:1 before anything has to wait.
 
