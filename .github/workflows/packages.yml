@@ -1,0 +1,38 @@
+# Checks that every package in setup/packages.txt still exists on the latest stable Fedora
+# (with the same repos install.sh adds). Runs monthly and when the list or the installer changes;
+# GitHub emails the repo owner when it fails, with the missing package names in the log.
+name: Package check
+
+on:
+  push:
+    paths: [setup/packages.txt, install.sh, "setup/root/etc/yum.repos.d/**", .github/workflows/packages.yml]
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    container: registry.fedoraproject.org/fedora:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add the Vayu Linux repos
+        run: |
+          rel=$(rpm -E %fedora)
+          dnf -y -q install \
+            "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$rel.noarch.rpm" \
+            "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$rel.noarch.rpm"
+          dnf -y -q install --nogpgcheck --repofrompath "terra,https://repos.fyralabs.com/terra$rel" terra-release
+          cp setup/root/etc/yum.repos.d/*.repo /etc/yum.repos.d/
+      - name: Check that every package still exists
+        run: |
+          eval "$(grep '^skip=' install.sh)"
+          grep -vE "$skip" setup/packages.txt | sort -u > /tmp/want.txt
+          dnf -y -q repoquery --available --qf '%{name}\n' | sort -u > /tmp/have.txt
+          missing=$(comm -23 /tmp/want.txt /tmp/have.txt)
+          echo "Fedora $(rpm -E %fedora): checked $(wc -l < /tmp/want.txt) packages"
+          if [ -n "$missing" ]; then
+            echo "::error::Not available on Fedora $(rpm -E %fedora): $(echo $missing)"
+            echo "$missing"
+            exit 1
+          fi

@@ -356,7 +356,6 @@ gdbm
 gdbm-libs
 gdk-pixbuf2
 gdk-pixbuf2-modules-extra
-geist-font
 geoclue2
 gettext-envsubst
 gettext-libs

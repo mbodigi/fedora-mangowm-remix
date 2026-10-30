@@ -138,6 +138,7 @@ that looks like a key or password.
 ├── get.sh                the curl one-liner: downloads this repo and runs install.sh
 ├── install.sh            installs the setup on a stock Fedora
 ├── collect.sh            snapshot this machine's setup into setup/ (read-only on the system)
+├── .github/workflows/    monthly check that every package still exists on the latest stable Fedora
 ├── src/
 │   ├── shell-user-setup  copies the configs to a user, fills in @HOME@
 │   ├── shell-firstlogin  dconf settings at first login

@@ -41,6 +41,9 @@ cp "$R"/setup/root/etc/yum.repos.d/*.repo /etc/yum.repos.d/
 # the full ffmpeg from RPM Fusion instead of Fedora's ffmpeg-free (the one swap this does)
 if rpm -q ffmpeg-free >/dev/null; then dnf -y swap ffmpeg-free ffmpeg --allowerasing; fi
 dnf -y install --skip-unavailable $pkgs
+# say which packages no repo had (renamed or dropped in this Fedora release), instead of skipping silently
+missing=$( { rpm -q $pkgs || true; } | sed -n 's/^package \(.*\) is not installed$/\1/p')
+[ -z "$missing" ] || { echo "Not available in the repos, skipped:"; echo "$missing" | sed 's/^/  /'; }
 
 # system files, owned by root; existing directories (/, /etc, /usr...) keep their owner and mode
 (cd "$R/setup/root" && tar -cf - --owner=0 --group=0 --numeric-owner .) | tar -xf - -C / --no-overwrite-dir
