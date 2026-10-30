@@ -27,8 +27,16 @@ home_items=(
     .local/share/applications/brave-browser.desktop
     .local/share/applications/panel-preferences.desktop
     .local/share/color-schemes
+    .local/share/icons/Fluent-grey/index.theme
+    .local/share/icons/Fluent-grey/symbolic/actions/sidebar-show-symbolic.svg .local/share/icons/Fluent-grey/symbolic/actions/list-add-symbolic.svg
+    .local/share/icons/Fluent-grey/symbolic/actions/selection-mode-symbolic.svg .local/share/icons/Fluent-grey/symbolic/actions/system-search-symbolic.svg
+    .local/share/icons/Fluent-grey/symbolic/actions/view-more-symbolic.svg .local/share/icons/Fluent-grey/symbolic/actions/window-close-symbolic.svg
     .local/state/shell/settings.json .local/state/shell/colors.json .local/state/shell/wallpaper
 )
+# Iotas settings for new users are written here, not copied (the live keyfile has window size and first-start state)
+mkdir -p "$S/home/.var/app/org.gnome.World.Iotas/config/glib-2.0/settings"
+printf '%s\n' '[org/gnome/gitlab/cheywood/Iotas]' "editor-formatting-bar-visibility='auto-hide'" 'persist-sidebar=false' \
+    'show-startup-secret-service-failure=false' > "$S/home/.var/app/org.gnome.World.Iotas/config/glib-2.0/settings/keyfile"
 for p in "${home_items[@]}"; do
     [ -e "$H/$p" ] || continue
     mkdir -p "$S/home/$(dirname "$p")"

@@ -41,6 +41,12 @@ cp "$R"/setup/root/etc/yum.repos.d/*.repo /etc/yum.repos.d/
 # the full ffmpeg from RPM Fusion instead of Fedora's ffmpeg-free (the one swap this does)
 if rpm -q ffmpeg-free >/dev/null; then dnf -y swap ffmpeg-free ffmpeg --allowerasing; fi
 dnf -y install --skip-unavailable $pkgs
+# Notes app: Iotas from Flathub. No network (no Nextcloud sync, notes stay on the machine), no keyring,
+# read-only access to the GTK 4 theme so it follows the matugen colors.
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install -y --noninteractive flathub org.gnome.World.Iotas
+flatpak override --filesystem=xdg-config/gtk-4.0:ro --unshare=network --no-talk-name=org.freedesktop.secrets org.gnome.World.Iotas
+
 # say which packages no repo had (renamed or dropped in this Fedora release), instead of skipping silently
 missing=$( { rpm -q $pkgs || true; } | sed -n 's/^package \(.*\) is not installed$/\1/p')
 [ -z "$missing" ] || { echo "Not available in the repos, skipped:"; echo "$missing" | sed 's/^/  /'; }

@@ -1,0 +1,4 @@
+[org/gnome/gitlab/cheywood/Iotas]
+editor-formatting-bar-visibility='auto-hide'
+persist-sidebar=false
+show-startup-secret-service-failure=false

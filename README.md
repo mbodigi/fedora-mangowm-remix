@@ -47,7 +47,7 @@ Vayu Linux installs from the **Fedora Everything ISO**:
 
 4. Reboot, pick the **Mango** session on the new login screen, and log in.
 
-- It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages.
+- It asks for your **password once** (sudo) and downloads about **2.5 GB** of packages, plus the Iotas notes app and its GNOME runtime from Flathub.
 - Fedora Workstation, KDE and other editions or spins (anything with a desktop already) aren't
   supported: start from Everything with no desktop.
 - **Bootloader:** where it's safe (UEFI, Secure Boot off, no Windows on the disk) it switches to
@@ -88,6 +88,7 @@ search and download from wallhaven, into the hidden `~/.local/share/wallpapers/`
 | **Theme** | Colors generated from the wallpaper by matugen (monochrome scheme), applied to the shell, GTK 3/4, Qt 5/6 and Mango; accents are fixed soft grays (#505050 / #8a8a8a) |
 | **Fonts** | JetBrains Mono for the UI, monospace and subtitles (fontconfig maps sans-serif to it too) |
 | **Browsers** | LibreWolf (default browser, follows the GTK theme, hardware video decoding, compact UI); Brave for web apps, with a policy file that turns off rewards, wallet, VPN, AI, news, telemetry and promos |
+| **Notes** | [Iotas](https://flathub.org/apps/org.gnome.World.Iotas) from Flathub: opens to your note list, categories, Markdown with checkboxes. No network access, so notes never leave the machine (no Nextcloud sync) |
 | **Video** | Celluloid + mpv with Intel VA-API hardware decoding, full ffmpeg from RPM Fusion |
 | **Laptop** | tuned with a custom `laptop-battery` profile; ThinkPad battery charge kept between 75 and 80% (udev rule; harmless on other machines) |
 
